@@ -1,7 +1,9 @@
 package com.joaomariodev.rmsfsensoractuationapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,10 +27,19 @@ public class MainActivity extends AppCompatActivity {
     EditText mSmokeThresh;
     Button mSmokeSendBtn;
     Button mTempSendBtn;
+    private boolean isNightModeEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
+        this.isNightModeEnabled = mPrefs.getBoolean("NIGHT_MODE", false);
+
+        if (isNightModeEnabled()) {
+            setTheme(R.style.AppThemeDark);
+        }
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_main);
 
         mSmokeReading = (TextView) findViewById(R.id.TextSmoke);
@@ -92,6 +103,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public boolean isNightModeEnabled() {
+        return isNightModeEnabled;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
+        this.isNightModeEnabled = mPrefs.getBoolean("NIGHT_MODE", false);
     }
 
     @Override

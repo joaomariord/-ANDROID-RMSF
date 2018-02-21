@@ -4,4 +4,12 @@
     <color name="colorPrimaryDark">@android:color/holo_blue_dark</color>
     <color name="colorAccent">@android:color/holo_red_dark</color>
     <color name="colorSplash">@android:color/holo_blue_light</color>
+
+    <color name="colorLightBackground">#dddddf</color>
+    <color name="colorDarkBackground">#002a3b</color>
+    <color name="accent_material_dark">#0d47a1</color>
+    <color name="colorDarkBackgroundSafe">#212121</color>
+    <color name="IstBlue">#00a0e4</color>
+    <color name="background_material_dark">#ffffff</color>
+    <color name="IstBlueDark">#004075</color>
 </resources>
