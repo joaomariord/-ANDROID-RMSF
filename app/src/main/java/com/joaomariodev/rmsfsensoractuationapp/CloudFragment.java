@@ -14,9 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -26,16 +26,17 @@ import org.json.JSONObject;
 import java.util.Random;
 
 
+@SuppressWarnings("ALL")
 public class CloudFragment extends Fragment {
 
 
     long BACKGROUND_SYNC_PERIOD = 10000;
-    TextView mTempReading;
-    TextView mSmokeReading;
     EditText mTempThresh;
     EditText mSmokeThresh;
     Button mSmokeSendBtn;
     Button mTempSendBtn;
+    realtimeChart chartTemperature;
+    realtimeChart chartSmoke;
     Random die = new Random();
     syncQuality backgroundCheck = new syncQuality();
     Handler backgroundHandler;
@@ -68,18 +69,6 @@ public class CloudFragment extends Fragment {
                 }
             }
         };
-
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-
-        try{
-            BACKGROUND_SYNC_PERIOD = Long.parseLong(mPrefs.getString("sync_frequency","-1"));
-    }
-        catch (NullPointerException e){
-            BACKGROUND_SYNC_PERIOD = -1;
-        }
-        if(BACKGROUND_SYNC_PERIOD != -1){
-            backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
-        }
     }
 
     @Override
@@ -88,12 +77,15 @@ public class CloudFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_data, container, false);
 
-        mSmokeReading = rootView.findViewById(R.id.TextSmoke);
-        mTempReading = rootView.findViewById(R.id.TextTemp);
         mSmokeThresh = rootView.findViewById(R.id.editValueSmoke);
         mTempThresh = rootView.findViewById(R.id.editValueTemp);
         mSmokeSendBtn = rootView.findViewById(R.id.SmokeThreshSend);
         mTempSendBtn = rootView.findViewById(R.id.TempThreshSend);
+
+        chartTemperature = new realtimeChart((LineChart) rootView.findViewById(R.id.chartTemp));
+        chartTemperature.initialize();
+        chartSmoke = new realtimeChart((LineChart) rootView.findViewById(R.id.chartSmoke));
+        chartSmoke.initialize();
 
         mSmokeThresh.addTextChangedListener(new TextWatcher() {
             @Override
@@ -135,7 +127,6 @@ public class CloudFragment extends Fragment {
 
         return rootView;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -186,12 +177,10 @@ public class CloudFragment extends Fragment {
 
     private boolean renderData(JSONObject data){
         try {
-            mSmokeReading.setText(data.getJSONObject("address").getJSONObject("geo").getString("lat"));
-            mTempReading.setText(data.getJSONObject("address").getJSONObject("geo").getString("lng"));
+            chartTemperature.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lng")));
+            chartSmoke.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lat")));
             return true;
         } catch (JSONException e) {
-            mSmokeReading.setText("0");
-            mTempReading.setText("0");
 
             Toast.makeText(getContext(),"Server data is invalid",Toast.LENGTH_SHORT).show();
         }
@@ -314,20 +303,20 @@ public class CloudFragment extends Fragment {
     interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
-}
 
-class syncQuality{
-    private long hitCounter;
+    private class syncQuality{
+        private long hitCounter;
 
-    void successfulSyncWarn() {
-        this.hitCounter = 0;
-    }
+        void successfulSyncWarn() {
+            this.hitCounter = 0;
+        }
 
-    void failedSyncWarn() {
-        this.hitCounter++;
-    }
+        void failedSyncWarn() {
+            this.hitCounter++;
+        }
 
-    boolean getSyncQuality(){
-        return hitCounter > 0;
+        boolean getSyncQuality(){
+            return hitCounter > 0;
+        }
     }
 }
