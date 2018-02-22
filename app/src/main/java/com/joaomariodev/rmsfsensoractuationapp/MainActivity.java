@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 Cloud.Action_Sync(view);
 
                 mSmokeReading.setText(Cloud.getSensorSmokeReading().toString());
+
                 mTempReading.setText(Cloud.getSensorTempReading().toString());
             }
         });
@@ -111,9 +112,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
         SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        this.isNightModeEnabled = mPrefs.getBoolean("NIGHT_MODE", false);
+        if (isNightModeEnabled()!=mPrefs.getBoolean("NIGHT_MODE", false)) {
+            if(isNightModeEnabled())   setTheme(R.style.AppThemeDark);
+            else setTheme(R.style.AppThemeLight);
+
+            recreate();
+            this.isNightModeEnabled = !isNightModeEnabled();
+        }
+        super.onResume();
     }
 
     @Override
@@ -139,4 +146,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

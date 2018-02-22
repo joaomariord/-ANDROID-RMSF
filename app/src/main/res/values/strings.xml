@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">RMSF Sensor Actuation App</string>
+    <string name="app_name_simple">Fire Sensor Control</string>
     <string name="action_settings">Settings</string>
     <string name="smoke_level">Smoke Level</string>
-    <string name="smoke_thres">Smoke Thresh</string>
-    <string name="temp_level">Temp Level</string>
-    <string name="temp_thres">Temp Thresh</string>
+    <string name="smoke_thres">Smoke Threshold</string>
+    <string name="temp_level">Temperature Level</string>
+    <string name="temp_thres">Temperature Threshold</string>
     <string name="smoke_def_value">0</string>
     <string name="temp_def_value">0</string>
     <string name="sendBtnTemp">Send</string>
