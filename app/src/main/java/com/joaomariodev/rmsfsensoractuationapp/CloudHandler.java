@@ -1,95 +1,37 @@
 package com.joaomariodev.rmsfsensoractuationapp;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Random;
-
-import cz.msebera.android.httpclient.Header;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 /**
  * Created by joaom on 20/02/2018.
  */
 
-class CloudHandler {
-    private Random die = new Random();
+class CloudApi {
+    private static String BASE_URL = "http://jsonplaceholder.typicode.com/";
+    private static int PORT = 80;
+    private static AsyncHttpClient client = new AsyncHttpClient(PORT);
 
-    //Variables to sync from and to cloud
-    private Double sensorSmokeReading = Double.valueOf(0);
-    private Double sensorTempReading = Double.valueOf(0);
-    private Double sensorSmokeThreshold;
-    private Double sensorTempThreshold;
-    private String raw;
-
-    Double getSensorSmokeReading() {
-        return sensorSmokeReading;
+    static void setBaseUrl(String baseUrl) {
+        BASE_URL = baseUrl + "/";
     }
 
-    Double getSensorTempReading() {
-        return sensorTempReading;
+    static void setPORT(int PORT) {
+        CloudApi.PORT = PORT;
     }
 
-    Double getSensorSmokeThreshold() {
-        return sensorSmokeThreshold;
+    static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    void setSensorSmokeThreshold(Double sensorSmokeThreshold) {
-        this.sensorSmokeThreshold = sensorSmokeThreshold;
+    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
-    Double getSensorTempThreshold() {
-        return sensorTempThreshold;
-    }
-
-    void setSensorTempThreshold(Double sensorTempThreshold) {
-        this.sensorTempThreshold = sensorTempThreshold;
-    }
-
-    //Sync action
-    void Action_Sync (View view){
-        //Get data from cloud
-//
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://jsonplaceholder.typicode.com/posts/1", null, new JsonHttpResponseHandler(){
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        try {
-                            sensorSmokeReading=response.getDouble("userId");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        Log.d("SSS", "onFailure: " + errorResponse);
-                    }
-                }
-        );
-
-//        sensorSmokeReading = die.nextDouble();
-        sensorTempReading = die.nextDouble();
-
-        Log.d("SSS", "EHFE");
-        Toast.makeText(view.getContext(),"Data updated from cloud", Toast.LENGTH_LONG).show();
-    }
-
-    void Action_Sync_Smoke (View view){
-        //Send data to cloud
-
-        Toast.makeText(view.getContext(),"Data updated to cloud", Toast.LENGTH_LONG).show();
-    }
-
-    void Action_Sync_Temp (View view){
-        //Send data to cloud
-
-        Toast.makeText(view.getContext(),"Data updated to cloud", Toast.LENGTH_LONG).show();
+    private static String getAbsoluteUrl(String relativeUrl) {
+        return BASE_URL + relativeUrl;
     }
 }
+
+
