@@ -2,7 +2,6 @@ package com.joaomariodev.rmsfsensoractuationapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -234,6 +233,8 @@ public class CloudFragment extends Fragment {
                         renderData(response);
                     }
                 });
+                backgroundCheck.successfulSyncWarn();
+
             }
 
             @Override
@@ -241,7 +242,7 @@ public class CloudFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(),"Server response is invalid",Toast.LENGTH_SHORT).show();
+                        backgroundCheck.failedSyncWarn();
                     }
                 });
             }
@@ -251,11 +252,12 @@ public class CloudFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(),"Server response is invalid",Toast.LENGTH_SHORT).show();
+                        backgroundCheck.failedSyncWarn();
                     }
                 });
             }
         });
+
     }
 
     public void getDataOnBackGround() throws JSONException {
@@ -301,10 +303,6 @@ public class CloudFragment extends Fragment {
                 backgroundCheck.failedSyncWarn();
             }
         });
-
-        if(!backgroundCheck.getSyncQuality()){
-            // TODO: PUT SOMETHING VISIBLE TO EXPRESS LACK OF CONNECTIVITY
-        }
     }
 
     /**
@@ -318,7 +316,7 @@ public class CloudFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(boolean connectivityState);
     }
 
     private class syncQuality{
@@ -326,10 +324,23 @@ public class CloudFragment extends Fragment {
 
         void successfulSyncWarn() {
             this.hitCounter = 0;
+            try {
+                mListener.onFragmentInteraction(this.getSyncQuality());
+            }
+            catch (NullPointerException e){
+                Log.d(TAG, "successfulSyncWarn: mListener not initialized");
+            }
         }
 
         void failedSyncWarn() {
             this.hitCounter++;
+
+            try {
+                mListener.onFragmentInteraction(this.getSyncQuality());
+            }
+            catch (NullPointerException e){
+                Log.d(TAG, "successfulSyncWarn: mListener not initialized");
+            }
         }
 
         boolean getSyncQuality(){

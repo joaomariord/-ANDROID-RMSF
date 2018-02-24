@@ -2,17 +2,17 @@ package com.joaomariodev.rmsfsensoractuationapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import org.json.JSONException;
 
@@ -20,7 +20,8 @@ import org.json.JSONException;
 public class MainActivity extends AppCompatActivity
                             implements CloudFragment.OnFragmentInteractionListener{
 
-    String TAG = "DEBUG";
+    ImageView mBadConnectivity;
+    Handler connectivityCheckHandler;
     private boolean isNightModeEnabled = false;
 
     @Override
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mBadConnectivity = (ImageView) findViewById(R.id.badConnectivity);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,12 +55,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        Log.d(TAG, "onCreate: Act");
 
         if( savedInstanceState == null){
             getSupportFragmentManager().beginTransaction().add(R.id.container, new CloudFragment()).commit();
         }
-
     }
 
     public boolean isNightModeEnabled() {
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
+    public void onFragmentInteraction(boolean connectivityState) {
+        if(connectivityState) mBadConnectivity.setVisibility(View.VISIBLE);
+        else mBadConnectivity.setVisibility(View.INVISIBLE);
     }
 }

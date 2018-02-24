@@ -30,4 +30,12 @@
         app:backgroundTint="@android:color/holo_blue_bright"
         app:srcCompat="@android:drawable/ic_popup_sync" />
 
+    <ImageView
+        android:id="@+id/badConnectivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_cloud_off_black_48dp" />
+
 </android.support.design.widget.CoordinatorLayout>
