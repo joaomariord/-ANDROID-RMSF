@@ -1,37 +1,72 @@
 package com.joaomariodev.rmsfsensoractuationapp;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.MPPointF;
+
+import java.io.Serializable;
 
 /**
  * Created by joaom on 22/02/2018.
  */
+class CustomMarkerView extends MarkerView {
 
-class realtimeChart {
+    private TextView tvContent;
 
+    public CustomMarkerView (Context context, int layoutResource) {
+        super(context, layoutResource);
+        tvContent = findViewById(R.id.tvContent);
+    }
+
+    // callbacks everytime the MarkerView is redrawn, can be used to update the
+    // content (user-interface)
+    @Override
+    public void refreshContent(Entry e, Highlight highlight) {
+        tvContent.setText("t:"+e.getX());
+    }
+
+    @Override
+    public MPPointF getOffset() {
+        return new MPPointF(-(getWidth()/4),-getHeight());
+    }
+}
+
+class LineDataSeriazable extends LineData implements Serializable{
+}
+
+class realtimeChart implements Serializable {
+
+    private static final int VISIBLEDATAPAIRS = 8;
     private LineChart mBaseChart;
+
 
     realtimeChart(LineChart mBaseChart){
         this.mBaseChart = mBaseChart;
     }
 
-    void initialize(){
-        this.setupChart();
+    void initialize(Context context){
+        this.setupChart(context);
         this.setupAxes();
         this.setupData();
         this.setLegend();
     }
 
-    private void setupChart() {
+    private void setupChart(Context context) {
+        CustomMarkerView mv = new CustomMarkerView(context, R.layout.marker_layout);
+        mBaseChart.setMarker(mv);
         // disable description text
         mBaseChart.getDescription().setEnabled(false);
         // enable touch gestures
@@ -47,10 +82,9 @@ class realtimeChart {
 
     private void setupAxes() {
         XAxis xl = mBaseChart.getXAxis();
-        xl.setTextColor(Color.WHITE);
         xl.setDrawGridLines(false);
         xl.setAvoidFirstLastClipping(false);
-        xl.setTextColor(ColorTemplate.colorWithAlpha(R.color.colorDarkBackground,100));
+        xl.setTextColor(ColorTemplate.colorWithAlpha(Color.GRAY,255));
         xl.setTextSize(8f);
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
         xl.setEnabled(true);
@@ -65,7 +99,7 @@ class realtimeChart {
     }
 
     private void setupData() {
-        LineData data = new LineData();
+        LineDataSeriazable data = new LineDataSeriazable();
         data.setValueTextColor(Color.WHITE);
 
         // add empty data
@@ -78,14 +112,24 @@ class realtimeChart {
         l.setEnabled(false);
     }
 
+    LineDataSeriazable getData(){
+        return (LineDataSeriazable) mBaseChart.getData();
+    }
+
+    void setData(LineDataSeriazable newData) {
+        mBaseChart.setData(newData);
+        mBaseChart.setVisibleXRangeMaximum(VISIBLEDATAPAIRS);
+        mBaseChart.moveViewToX(newData.getEntryCount());
+    }
+
     private LineDataSet createSet() {
         LineDataSet set = new LineDataSet(null, "Data");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColors(ColorTemplate.colorWithAlpha(R.color.colorAccent,100));
-        set.setCircleColor(ColorTemplate.colorWithAlpha(R.color.colorDarkBackground,100));
+        set.setCircleColor(ColorTemplate.colorWithAlpha(Color.BLUE,60));
         set.setLineWidth(2f);
         set.setCircleRadius(4f);
-        set.setValueTextColor(ColorTemplate.colorWithAlpha(R.color.colorDarkBackground,100));
+        set.setValueTextColor(ColorTemplate.colorWithAlpha(Color.GRAY,255));
         set.setValueTextSize(10f);
         set.setHighlightEnabled(true);
         // To show values of each point
@@ -94,8 +138,8 @@ class realtimeChart {
         return set;
     }
 
-    public void addEntry(double value) {
-        LineData data = mBaseChart.getData();
+    void addEntry(double value) {
+        LineDataSeriazable data = (LineDataSeriazable) mBaseChart.getData();
 
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
@@ -112,10 +156,13 @@ class realtimeChart {
             mBaseChart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            mBaseChart.setVisibleXRangeMaximum(10);
+            mBaseChart.setVisibleXRangeMaximum(VISIBLEDATAPAIRS);
 
-            // move to the latest entry
-            mBaseChart.moveViewToX(data.getEntryCount());
+            // move to the latest entry if user is seeing the latest entry
+            if (((int) mBaseChart.getHighestVisibleX()) >= data.getEntryCount() - 2 )
+                    mBaseChart.moveViewToX(data.getEntryCount());
+
         }
     }
+
 }

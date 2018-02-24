@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +26,9 @@ import org.json.JSONObject;
 
 import java.util.Random;
 
-
-@SuppressWarnings("ALL")
 public class CloudFragment extends Fragment {
 
+    String TAG = "DEBUG";
 
     long BACKGROUND_SYNC_PERIOD = 10000;
     EditText mTempThresh;
@@ -48,6 +48,8 @@ public class CloudFragment extends Fragment {
         handler = new Handler();
 
         backgroundHandler = new Handler();
+
+        Log.d(TAG, "CloudFragment: ");
     }
 
     public static CloudFragment newInstance() {
@@ -56,6 +58,7 @@ public class CloudFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
         backgroundSync = new Runnable() {
             @Override
@@ -74,7 +77,7 @@ public class CloudFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        Log.d(TAG, "onCreateView: ");
         View rootView = inflater.inflate(R.layout.fragment_data, container, false);
 
         mSmokeThresh = rootView.findViewById(R.id.editValueSmoke);
@@ -83,9 +86,16 @@ public class CloudFragment extends Fragment {
         mTempSendBtn = rootView.findViewById(R.id.TempThreshSend);
 
         chartTemperature = new realtimeChart((LineChart) rootView.findViewById(R.id.chartTemp));
-        chartTemperature.initialize();
+        chartTemperature.initialize(getContext());
+        if( (savedInstanceState!=null) && (savedInstanceState.getSerializable("chartTemperatureData")!=null) ) {
+            chartTemperature.setData((LineDataSeriazable) savedInstanceState.getSerializable("chartTemperatureData"));
+        }
+
         chartSmoke = new realtimeChart((LineChart) rootView.findViewById(R.id.chartSmoke));
-        chartSmoke.initialize();
+        chartSmoke.initialize(getContext());
+        if( (savedInstanceState!=null) && (savedInstanceState.getSerializable("chartSmokeData")!=null) ) {
+            chartSmoke.setData((LineDataSeriazable) savedInstanceState.getSerializable("chartSmokeData"));
+        }
 
         mSmokeThresh.addTextChangedListener(new TextWatcher() {
             @Override
@@ -124,7 +134,6 @@ public class CloudFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 
@@ -143,6 +152,7 @@ public class CloudFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume: ");
 
         SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
 
@@ -159,13 +169,22 @@ public class CloudFragment extends Fragment {
         if(BACKGROUND_SYNC_PERIOD != -1){
             backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
         }
+
     }
 
     //Where we pause the background check
     @Override
     public void onStop() {
+        Log.d(TAG, "onStop: ");
         super.onStop();
         backgroundHandler.removeCallbacks(backgroundSync);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("chartTemperatureData", chartTemperature.getData());
+        outState.putSerializable("chartSmokeData", chartSmoke.getData());
     }
 
     @Override
@@ -287,8 +306,6 @@ public class CloudFragment extends Fragment {
             // TODO: PUT SOMETHING VISIBLE TO EXPRESS LACK OF CONNECTIVITY
         }
     }
-
-
 
     /**
      * This interface must be implemented by activities that contain this
