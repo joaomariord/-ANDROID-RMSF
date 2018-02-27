@@ -18,8 +18,7 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_dark_mode">Dark Mode</string>
-    <string name="pref_description_dark_mode">Enable the nice dark mode
-    </string>
+    <string name="pref_description_dark_mode">Enable the gay dark mode, test</string>
 
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
