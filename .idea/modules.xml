@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Project.iml" filepath="$PROJECT_DIR$/Project.iml" />
-      <module fileurl="file://C:\Users\vjbma\Desktop\School\MEEC_IST\2Semester\RMSF\Project\RMSFSensorActuationApp.iml" filepath="C:\Users\vjbma\Desktop\School\MEEC_IST\2Semester\RMSF\Project\RMSFSensorActuationApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RMSFSensorActuationApp.iml" filepath="$PROJECT_DIR$/RMSFSensorActuationApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
