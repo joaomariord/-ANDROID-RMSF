@@ -6,13 +6,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.LineChart;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -21,10 +24,14 @@ import org.json.JSONObject;
 
 import java.util.Random;
 
-public class CloudFragment extends Fragment {
+public class ActionFragment extends Fragment {
 
     String TAG = "DEBUG";
     long BACKGROUND_SYNC_PERIOD = 10000;
+    EditText mTempThresh;
+    EditText mSmokeThresh;
+    Button mSmokeSendBtn;
+    Button mTempSendBtn;
     realtimeChart chartTemperature;
     realtimeChart chartSmoke;
     Random die = new Random();
@@ -32,9 +39,9 @@ public class CloudFragment extends Fragment {
     Handler backgroundHandler;
     Handler handler;
     private Runnable backgroundSync;
-    private OnCloudFragmentInteractionListener mListener;
+    private OnActionFragmentInteractionListener mListener;
 
-    public CloudFragment() {
+    public ActionFragment() {
         handler = new Handler();
 
         backgroundHandler = new Handler();
@@ -42,8 +49,8 @@ public class CloudFragment extends Fragment {
         Log.d(TAG, "CloudFragment: ");
     }
 
-    public static CloudFragment newInstance() {
-        return new CloudFragment();
+    public static ActionFragment newInstance() {
+        return new ActionFragment();
     }
 
     @Override
@@ -68,19 +75,49 @@ public class CloudFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: ");
-        View rootView = inflater.inflate(R.layout.fragment_data, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_action, container, false);
 
-        chartTemperature = new realtimeChart((LineChart) rootView.findViewById(R.id.chartTemp));
-        chartTemperature.initialize(getContext());
-        if( (savedInstanceState!=null) && (savedInstanceState.getSerializable("chartTemperatureData")!=null) ) {
-            chartTemperature.setData((LineDataSeriazable) savedInstanceState.getSerializable("chartTemperatureData"));
-        }
+        mSmokeThresh = rootView.findViewById(R.id.editValueSmoke);
+        mTempThresh = rootView.findViewById(R.id.editValueTemp);
+        mSmokeSendBtn = rootView.findViewById(R.id.SmokeThreshSend);
+        mTempSendBtn = rootView.findViewById(R.id.TempThreshSend);
 
-        chartSmoke = new realtimeChart((LineChart) rootView.findViewById(R.id.chartSmoke));
-        chartSmoke.initialize(getContext());
-        if( (savedInstanceState!=null) && (savedInstanceState.getSerializable("chartSmokeData")!=null) ) {
-            chartSmoke.setData((LineDataSeriazable) savedInstanceState.getSerializable("chartSmokeData"));
-        }
+        mSmokeThresh.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length()==0) mSmokeSendBtn.setVisibility(View.INVISIBLE);
+                else mSmokeSendBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        mTempThresh.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length()==0) mTempSendBtn.setVisibility(View.INVISIBLE);
+                else mTempSendBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        mSmokeSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        mTempSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         return rootView;
     }
@@ -88,11 +125,11 @@ public class CloudFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnCloudFragmentInteractionListener) {
-            mListener = (OnCloudFragmentInteractionListener) context;
+        if (context instanceof OnActionFragmentInteractionListener) {
+            mListener = (OnActionFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnActionFragmentInteractionListener");
         }
     }
 
@@ -115,7 +152,7 @@ public class CloudFragment extends Fragment {
         }
 
         if(BACKGROUND_SYNC_PERIOD != -1){
-            backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
+           // backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD); TODO:Think on this
         }
 
     }
@@ -131,8 +168,6 @@ public class CloudFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("chartTemperatureData", chartTemperature.getData());
-        outState.putSerializable("chartSmokeData", chartSmoke.getData());
     }
 
     @Override
@@ -264,8 +299,8 @@ public class CloudFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    interface OnCloudFragmentInteractionListener {
-        void onCloudFragmentInteraction(boolean connectivityState);
+    interface OnActionFragmentInteractionListener {
+        void OnActionFragmentInteraction(boolean connectivityState);
     }
 
     private class syncQuality{
@@ -274,7 +309,7 @@ public class CloudFragment extends Fragment {
         void successfulSyncWarn() {
             this.hitCounter = 0;
             try {
-                mListener.onCloudFragmentInteraction(this.getSyncQuality());
+                mListener.OnActionFragmentInteraction(this.getSyncQuality());
             }
             catch (NullPointerException e){
                 Log.d(TAG, "successfulSyncWarn: mListener not initialized");
@@ -285,7 +320,7 @@ public class CloudFragment extends Fragment {
             this.hitCounter++;
 
             try {
-                mListener.onCloudFragmentInteraction(this.getSyncQuality());
+                mListener.OnActionFragmentInteraction(this.getSyncQuality());
             }
             catch (NullPointerException e){
                 Log.d(TAG, "successfulSyncWarn: mListener not initialized");

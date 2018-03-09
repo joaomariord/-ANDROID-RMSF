@@ -16,13 +16,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.json.JSONException;
 
@@ -30,7 +28,7 @@ import java.lang.ref.WeakReference;
 
 
 public class MainActivity extends AppCompatActivity
-                            implements CloudFragment.OnFragmentInteractionListener{
+                            implements CloudFragment.OnCloudFragmentInteractionListener, ActionFragment.OnActionFragmentInteractionListener{
 
     ImageView mBadConnectivity;
     Handler connectivityCheckHandler;
@@ -132,44 +130,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(boolean connectivityState) {
+    public void onCloudFragmentInteraction(boolean connectivityState) {
         if(connectivityState) mBadConnectivity.setVisibility(View.VISIBLE);
         else mBadConnectivity.setVisibility(View.INVISIBLE);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static MainActivity.PlaceholderFragment newInstance(int sectionNumber) {
-            MainActivity.PlaceholderFragment fragment = new MainActivity.PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main2, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
+    @Override
+    public void OnActionFragmentInteraction(boolean connectivityState) {
+        if(connectivityState) mBadConnectivity.setVisibility(View.VISIBLE);
+        else mBadConnectivity.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -197,10 +166,10 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case 2:
                     //Action fragment
-                    thisFrag = MainActivity.PlaceholderFragment.newInstance(position+1);
+                    thisFrag = ActionFragment.newInstance();
                     break;
                 default:
-                    thisFrag = MainActivity.PlaceholderFragment.newInstance(-1);
+                    return null;
             }
 
             return thisFrag;

@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cloud_fragment"
-    android:layout_width="0dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.joaomariodev.rmsfsensoractuationapp.MainActivity">
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginBottom="15dp"
         android:layout_marginTop="15dp"
         android:orientation="vertical"
@@ -69,9 +69,11 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="41dp"
                 android:contentDescription="@string/gas_level"
                 android:translationX="-4dp"
                 app:srcCompat="@mipmap/smoke_pic" />
@@ -83,39 +85,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1.2">
 
-            <TextView
-                android:id="@+id/tempTextViewThresh"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="31dp"
-                android:text="@string/temp_thres"
-                android:textColor="?attr/primaryTextColor" />
-
-            <EditText
-                android:id="@+id/editValueTemp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="41dp"
+                android:layout_height="41dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:labelFor="@+id/temperature"
-                android:textColor="?attr/secondaryTextColor" />
+                android:contentDescription="@string/alarm"
+                app:srcCompat="@drawable/alarm" />
 
-            <Button
-                android:id="@+id/TempThreshSend"
-                style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
+            <TextView
+                android:id="@+id/alarm_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/editValueTemp"
-                android:layout_alignBottom="@+id/editValueTemp"
-                android:layout_marginStart="36dp"
-                android:layout_toEndOf="@+id/editValueTemp"
-                android:text="@string/sendBtnTemp"
-                android:visibility="invisible" />
-
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -123,39 +107,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1.2">
 
-            <TextView
-                android:id="@+id/smokeTextViewThresh"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="31dp"
-                android:text="@string/smoke_thres"
-                android:textColor="?attr/primaryTextColor" />
-
-            <EditText
-                android:id="@+id/editValueSmoke"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="41dp"
+                android:layout_height="41dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:labelFor="@+id/smokeTextViewThresh"
-                android:textColor="?attr/secondaryTextColor" />
+                android:contentDescription="@string/water_pump"
+                app:srcCompat="@drawable/waterpump" />
 
-            <Button
-                android:id="@+id/SmokeThreshSend"
-                style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
+            <TextView
+                android:id="@+id/water_pump_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/editValueSmoke"
-                android:layout_alignBottom="@+id/editValueSmoke"
-                android:layout_marginStart="38dp"
-                android:layout_toEndOf="@+id/editValueSmoke"
-                android:text="@string/sendBtnSmoke"
-                android:visibility="invisible" />
-
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true" />
         </RelativeLayout>
 
     </LinearLayout>
