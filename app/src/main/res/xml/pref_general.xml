@@ -1,5 +1,4 @@
-<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
         android:key="NIGHT_MODE"
@@ -10,27 +9,33 @@
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
         android:capitalize="words"
+        android:defaultValue="http://jsonplaceholder.typicode.com/"
         android:inputType="text"
         android:key="API_SERVER"
         android:maxLines="1"
+        android:persistent="true"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/pref_title_api_server" />
 
     <EditTextPreference
         android:capitalize="words"
+        android:defaultValue="users"
         android:inputType="text"
         android:key="API_ROUTE"
         android:maxLines="1"
+        android:persistent="true"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/pref_title_api_route" />
 
     <EditTextPreference
         android:capitalize="words"
+        android:defaultValue="80"
         android:inputType="number"
         android:key="API_PORT"
         android:maxLines="1"
+        android:persistent="true"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/pref_title_api_port" />

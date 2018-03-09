@@ -28,7 +28,6 @@ import java.util.Random;
 public class CloudFragment extends Fragment {
 
     String TAG = "DEBUG";
-
     long BACKGROUND_SYNC_PERIOD = 10000;
     EditText mTempThresh;
     EditText mSmokeThresh;
