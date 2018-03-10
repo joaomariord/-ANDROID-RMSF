@@ -3,7 +3,6 @@ package com.joaomariodev.rmsfsensoractuationapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -31,13 +30,12 @@ public class MainActivity extends AppCompatActivity
                             implements CloudFragment.OnCloudFragmentInteractionListener, ActionFragment.OnActionFragmentInteractionListener{
 
     ImageView mBadConnectivity;
-    Handler connectivityCheckHandler;
+    ViewPager mViewPager;
+    TabLayout tabLayout;
     private boolean isNightModeEnabled = false;
-
     private MainActivity.SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-    private TabLayout tabLayout;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
@@ -79,12 +77,16 @@ public class MainActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
                 }
+                ActionFragment aFrag =((ActionFragment) mSectionsPagerAdapter.getFragment(1));
+                if(aFrag != null){
+                    try {
+                        aFrag.getDataOnBackGround();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
-
-//        if( savedInstanceState == null){
-//            getSupportFragmentManager().beginTransaction().add(R.id.container, new CloudFragment()).commit();
-//        }
     }
 
     public boolean isNightModeEnabled() {

@@ -1,10 +1,8 @@
 package com.joaomariodev.rmsfsensoractuationapp;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,33 +11,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Random;
+import cz.msebera.android.httpclient.Header;
 
 public class ActionFragment extends Fragment {
 
+    private static final long BACKGROUND_SYNC_PERIOD = 3000;
     String TAG = "DEBUG";
-    long BACKGROUND_SYNC_PERIOD = 10000;
+
     EditText mTempThresh;
     EditText mSmokeThresh;
     Button mSmokeSendBtn;
     Button mTempSendBtn;
-    realtimeChart chartTemperature;
-    realtimeChart chartSmoke;
-    Random die = new Random();
-    syncQuality backgroundCheck = new syncQuality();
     Handler backgroundHandler;
     Handler handler;
-    private Runnable backgroundSync;
+    Switch mAlarmToggle;
+    Switch mWaterPumpToggle;
+
     private OnActionFragmentInteractionListener mListener;
+    private Runnable backgroundSync;
+
 
     public ActionFragment() {
         handler = new Handler();
@@ -106,16 +107,65 @@ public class ActionFragment extends Fragment {
             }
         });
 
+        final AsyncHttpResponseHandler generalResponseHandler =  new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(final int statusCode, Header[] headers, byte[] responseBody) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(statusCode!=200){
+                            Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
+
+
         mSmokeSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
+                CloudApi.post("thr/gas", thisDouble, generalResponseHandler);
             }
         });
         mTempSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
+                CloudApi.post("thr/temp", thisDouble, generalResponseHandler);
+            }
+        });
 
+        mAlarmToggle = rootView.findViewById(R.id.switch_alarm);
+        mWaterPumpToggle = rootView.findViewById(R.id.switch_water_pump);
+
+        if(savedInstanceState!=null){
+            if(savedInstanceState.getString("tempHintString")!=null) mTempThresh.setHint(savedInstanceState.getString("tempHintString"));
+            if(savedInstanceState.getString("smokeHintString")!=null) mSmokeThresh.setHint(savedInstanceState.getString("smokeHintString"));
+        }
+
+        mAlarmToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                CloudApi.post("set/alrt", b, generalResponseHandler);
+            }
+        });
+
+        mWaterPumpToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                CloudApi.post("set/wtr", b, generalResponseHandler);
             }
         });
 
@@ -138,23 +188,7 @@ public class ActionFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-
-
-        CloudApi.setBaseUrl(mPrefs.getString("API_SERVER","http://jsonplaceholder.typicode.com"));
-        CloudApi.setPORT(Integer.parseInt(mPrefs.getString("API_PORT","80")));
-        try{
-            BACKGROUND_SYNC_PERIOD = Long.parseLong(mPrefs.getString("sync_frequency","-1"));
-        }
-        catch (NullPointerException e){
-            BACKGROUND_SYNC_PERIOD = -1;
-        }
-
-        if(BACKGROUND_SYNC_PERIOD != -1){
-           // backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD); TODO:Think on this
-        }
-
+        backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
     }
 
     //Where we pause the background check
@@ -168,6 +202,8 @@ public class ActionFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putCharSequence("tempHintString", mTempThresh.getHint());
+        outState.putCharSequence("smokeHintString", mSmokeThresh.getHint());
     }
 
     @Override
@@ -177,116 +213,31 @@ public class ActionFragment extends Fragment {
         mListener = null;
     }
 
-    private boolean renderData(JSONObject data){
-        try {
-            chartTemperature.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lng")));
-            chartSmoke.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lat")));
-            return true;
-        } catch (JSONException e) {
-
-            Toast.makeText(getContext(),"Server data is invalid",Toast.LENGTH_SHORT).show();
-        }
-
-        return false;
-    }
-
-    public void getDataOnClick() throws JSONException {
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-        String api_route = mPrefs.getString("API_ROUTE", null);
-        CloudApi.get(api_route+"/"+(String.valueOf(die.nextInt(11)+1)), null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if(renderData(response.getJSONObject(0)))
-                                Toast.makeText(getContext(),"Data Updated",Toast.LENGTH_SHORT).show();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        renderData(response);
-                    }
-                });
-                backgroundCheck.successfulSyncWarn();
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        backgroundCheck.failedSyncWarn();
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        backgroundCheck.failedSyncWarn();
-                    }
-                });
-            }
-        });
-
-    }
-
     public void getDataOnBackGround() throws JSONException {
 
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-        String api_route = mPrefs.getString("API_ROUTE", null);
-        CloudApi.get(api_route+"/"+(String.valueOf(die.nextInt(11)+1)), null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if(renderData(response.getJSONObject(0))){
-                                backgroundCheck.successfulSyncWarn();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-
+        CloudApi.get(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONObject response) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if(renderData(response)){
-                            backgroundCheck.successfulSyncWarn();
-                        }
+                        updateAndRenderData(response);
                     }
                 });
             }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                backgroundCheck.failedSyncWarn();
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                backgroundCheck.failedSyncWarn();
-            }
         });
+    }
+
+    void updateAndRenderData(JSONObject data){
+        try {
+            mAlarmToggle.setChecked(data.getJSONObject("alert").getBoolean("operational"));
+            mWaterPumpToggle.setChecked(data.getJSONObject("water").getBoolean("operational"));
+            mTempThresh.setHint(String.valueOf(data.getJSONObject("temp").getDouble("threshold")));
+            mSmokeThresh.setHint(String.valueOf(data.getJSONObject("gas").getDouble("threshold")));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -301,34 +252,5 @@ public class ActionFragment extends Fragment {
      */
     interface OnActionFragmentInteractionListener {
         void OnActionFragmentInteraction(boolean connectivityState);
-    }
-
-    private class syncQuality{
-        private long hitCounter;
-
-        void successfulSyncWarn() {
-            this.hitCounter = 0;
-            try {
-                mListener.OnActionFragmentInteraction(this.getSyncQuality());
-            }
-            catch (NullPointerException e){
-                Log.d(TAG, "successfulSyncWarn: mListener not initialized");
-            }
-        }
-
-        void failedSyncWarn() {
-            this.hitCounter++;
-
-            try {
-                mListener.OnActionFragmentInteraction(this.getSyncQuality());
-            }
-            catch (NullPointerException e){
-                Log.d(TAG, "successfulSyncWarn: mListener not initialized");
-            }
-        }
-
-        boolean getSyncQuality(){
-            return hitCounter > 0;
-        }
     }
 }

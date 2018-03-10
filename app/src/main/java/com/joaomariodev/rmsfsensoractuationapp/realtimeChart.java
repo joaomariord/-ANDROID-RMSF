@@ -1,5 +1,6 @@
 package com.joaomariodev.rmsfsensoractuationapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.widget.TextView;
@@ -20,8 +21,9 @@ import com.github.mikephil.charting.utils.MPPointF;
 import java.io.Serializable;
 
 /**
- * Created by joaom on 22/02/2018.
+ * Created by joaom on 22/02/2018. To make charts really easy and nice
  */
+@SuppressLint("ViewConstructor")
 class CustomMarkerView extends MarkerView {
 
     private TextView tvContent;

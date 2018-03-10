@@ -46,7 +46,8 @@
                 android:ems="10"
                 android:inputType="numberDecimal"
                 android:labelFor="@+id/temperature"
-                android:textColor="?attr/secondaryTextColor" />
+                android:textColor="@color/colorSplash"
+                tools:ignore="LabelFor" />
 
             <Button
                 android:id="@+id/TempThreshSend"
@@ -69,9 +70,8 @@
                 android:id="@+id/imageView8"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
-                android:layout_marginBottom="41dp"
+                android:layout_centerVertical="true"
                 android:contentDescription="@string/gas_level"
                 android:translationX="-4dp"
                 app:srcCompat="@mipmap/smoke_pic" />
@@ -85,7 +85,8 @@
                 android:ems="10"
                 android:inputType="numberDecimal"
                 android:labelFor="@+id/smokeTextViewThresh"
-                android:textColor="?attr/secondaryTextColor" />
+                android:textColor="@color/colorSplash"
+                tools:ignore="LabelFor" />
 
             <Button
                 android:id="@+id/SmokeThreshSend"
@@ -100,60 +101,64 @@
 
         </RelativeLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1.2"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:layout_weight="1">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                tools:ignore="UselessParent">
 
-                <Switch
-                    android:id="@+id/switch_alarm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="66dp"
-                    android:checked="false" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
 
-                <ImageView
-                    android:id="@+id/imageView5"
-                    android:layout_width="41dp"
-                    android:layout_height="41dp"
-                    android:layout_above="@+id/switch_alarm"
-                    android:layout_alignStart="@+id/switch_alarm"
-                    android:contentDescription="@string/alarm"
-                    app:srcCompat="@drawable/alarm" />
-            </RelativeLayout>
+                    <Switch
+                        android:id="@+id/switch_alarm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="41dp"
+                        android:layout_height="41dp"
+                        android:layout_above="@+id/switch_alarm"
+                        android:layout_alignStart="@+id/switch_alarm"
+                        android:contentDescription="@string/alarm"
+                        app:srcCompat="@drawable/alarm" />
+                </RelativeLayout>
 
-                <Switch
-                    android:id="@+id/switch_water_pump"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="65dp" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
 
-                <ImageView
-                    android:id="@+id/imageView7"
-                    android:layout_width="41dp"
-                    android:layout_height="41dp"
-                    android:layout_above="@+id/switch_water_pump"
-                    android:layout_alignStart="@+id/switch_water_pump"
-                    android:contentDescription="@string/water_pump"
-                    app:srcCompat="@drawable/waterpump" />
-            </RelativeLayout>
-        </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_water_pump"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true" />
+
+                    <ImageView
+                        android:id="@+id/imageView7"
+                        android:layout_width="41dp"
+                        android:layout_height="41dp"
+                        android:layout_above="@+id/switch_water_pump"
+                        android:layout_alignStart="@+id/switch_water_pump"
+                        android:contentDescription="@string/water_pump"
+                        app:srcCompat="@drawable/waterpump" />
+                </RelativeLayout>
+            </LinearLayout>
+        </FrameLayout>
 
     </LinearLayout>
 

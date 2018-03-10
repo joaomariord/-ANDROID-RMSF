@@ -5,11 +5,11 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 /**
- * Created by joaom on 20/02/2018.
+ * Created by joaom on 20/02/2018. To make simpler http communications
  */
 
 class CloudApi {
-    private static String BASE_URL = "http://jsonplaceholder.typicode.com/";
+    private static String BASE_URL = "http://rmsf-server.herokuapp.com";
     private static int PORT = 80;
     private static AsyncHttpClient client = new AsyncHttpClient(PORT);
 
@@ -21,12 +21,23 @@ class CloudApi {
         CloudApi.PORT = PORT;
     }
 
-    static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(getAbsoluteUrl(url), params, responseHandler);
+    static void get(AsyncHttpResponseHandler responseHandler) {
+        String get_route = "status";
+        client.get(getAbsoluteUrl(get_route), null, responseHandler);
     }
 
-    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(getAbsoluteUrl(url), params, responseHandler);
+    static void post(String postRoute,boolean setParam, AsyncHttpResponseHandler responseHandler) {
+        RequestParams params = new RequestParams();
+        params.put("set", setParam);
+        params.setUseJsonStreamer(true);
+        client.post(getAbsoluteUrl(postRoute), params , responseHandler);
+    }
+
+    static void post(String postRoute,Double setParam, AsyncHttpResponseHandler responseHandler) {
+        RequestParams params = new RequestParams();
+        params.put("set", setParam);
+        params.setUseJsonStreamer(true);
+        client.post(getAbsoluteUrl(postRoute), params , responseHandler);
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -19,15 +20,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Random;
-
 public class CloudFragment extends Fragment {
 
     String TAG = "DEBUG";
     long BACKGROUND_SYNC_PERIOD = 10000;
+
     realtimeChart chartTemperature;
     realtimeChart chartSmoke;
-    Random die = new Random();
+    TextView mTextAlarm;
+    TextView mTextWaterPump;
+
     syncQuality backgroundCheck = new syncQuality();
     Handler backgroundHandler;
     Handler handler;
@@ -82,6 +84,14 @@ public class CloudFragment extends Fragment {
             chartSmoke.setData((LineDataSeriazable) savedInstanceState.getSerializable("chartSmokeData"));
         }
 
+        mTextAlarm = rootView.findViewById(R.id.alarm_text);
+        mTextWaterPump = rootView.findViewById(R.id.water_pump_text);
+
+        if(savedInstanceState!=null){
+            if(savedInstanceState.getString("alarmStatusString")!=null) mTextAlarm.setText(savedInstanceState.getString("alarmStatusString"));
+            if(savedInstanceState.getString("waterPumpStatusString")!=null) mTextWaterPump.setText(savedInstanceState.getString("waterPumpStatusString"));
+        }
+
         return rootView;
     }
 
@@ -133,6 +143,8 @@ public class CloudFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putSerializable("chartTemperatureData", chartTemperature.getData());
         outState.putSerializable("chartSmokeData", chartSmoke.getData());
+        outState.putCharSequence("alarmStatusString", mTextAlarm.getText().toString());
+        outState.putCharSequence("waterPumpStatusString", mTextWaterPump.getText().toString());
     }
 
     @Override
@@ -143,22 +155,37 @@ public class CloudFragment extends Fragment {
     }
 
     private boolean renderData(JSONObject data){
+        boolean alertStatus = false;
+        boolean waterStatus = false;
+        boolean returnStatus = true;
         try {
-            chartTemperature.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lng")));
-            chartSmoke.addEntry(Double.parseDouble(data.getJSONObject("address").getJSONObject("geo").getString("lat")));
-            return true;
+            chartTemperature.addEntry(Double.parseDouble(data.getJSONObject("temp").getString("status")));
+            chartSmoke.addEntry(Double.parseDouble(data.getJSONObject("gas").getString("status")));
+            alertStatus = data.getJSONObject("alert").getBoolean("status");
+            waterStatus = data.getJSONObject("water").getBoolean("status");
         } catch (JSONException e) {
 
             Toast.makeText(getContext(),"Server data is invalid",Toast.LENGTH_SHORT).show();
+            returnStatus = false;
         }
 
-        return false;
+        if (alertStatus) {
+            mTextAlarm.setText("Alarm raised");
+        } else {
+            mTextAlarm.setText("Alarm not raised");
+        }
+
+        if (waterStatus) {
+            mTextWaterPump.setText("Water pump is pumping");
+        } else {
+            mTextWaterPump.setText("Water pump not pumping");
+        }
+
+        return returnStatus;
     }
 
     public void getDataOnClick() throws JSONException {
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-        String api_route = mPrefs.getString("API_ROUTE", null);
-        CloudApi.get(api_route+"/"+(String.valueOf(die.nextInt(11)+1)), null, new JsonHttpResponseHandler() {
+        CloudApi.get( new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
                 handler.post(new Runnable() {
@@ -211,9 +238,7 @@ public class CloudFragment extends Fragment {
 
     public void getDataOnBackGround() throws JSONException {
 
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-        String api_route = mPrefs.getString("API_ROUTE", null);
-        CloudApi.get(api_route+"/"+(String.valueOf(die.nextInt(11)+1)), null, new JsonHttpResponseHandler() {
+            CloudApi.get(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
                 handler.post(new Runnable() {
