@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -131,7 +130,6 @@ public class ActionFragment extends Fragment {
             }
         };
 
-
         mSmokeSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -155,16 +153,19 @@ public class ActionFragment extends Fragment {
             if(savedInstanceState.getString("smokeHintString")!=null) mSmokeThresh.setHint(savedInstanceState.getString("smokeHintString"));
         }
 
-        mAlarmToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        mAlarmToggle.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            public void onClick(View view) {
+                boolean b = ((Switch) view).isChecked();
                 CloudApi.post("set/alrt", b, generalResponseHandler);
             }
         });
 
-        mWaterPumpToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mWaterPumpToggle.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            public void onClick(View view) {
+                boolean b = ((Switch) view).isChecked();
                 CloudApi.post("set/wtr", b, generalResponseHandler);
             }
         });
