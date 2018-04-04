@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Utilities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,12 +11,12 @@ import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
+import com.joaomariodev.rmsfsensoractuationapp.R;
 
 import java.io.Serializable;
 
@@ -46,20 +46,17 @@ class CustomMarkerView extends MarkerView {
     }
 }
 
-class LineDataSeriazable extends LineData implements Serializable{
-}
-
-class realtimeChart implements Serializable {
+public class realtimeChart implements Serializable {
 
     private static final int VISIBLEDATAPAIRS = 8;
     private LineChart mBaseChart;
 
 
-    realtimeChart(LineChart mBaseChart){
+    public realtimeChart(LineChart mBaseChart){
         this.mBaseChart = mBaseChart;
     }
 
-    void initialize(Context context){
+    public void initialize(Context context){
         this.setupChart(context);
         this.setupAxes();
         this.setupData();
@@ -114,11 +111,11 @@ class realtimeChart implements Serializable {
         l.setEnabled(false);
     }
 
-    LineDataSeriazable getData(){
+    public LineDataSeriazable getData(){
         return (LineDataSeriazable) mBaseChart.getData();
     }
 
-    void setData(LineDataSeriazable newData) {
+    public void setData(LineDataSeriazable newData) {
         mBaseChart.setData(newData);
         mBaseChart.setVisibleXRangeMaximum(VISIBLEDATAPAIRS);
         mBaseChart.moveViewToX(newData.getEntryCount());
@@ -140,7 +137,7 @@ class realtimeChart implements Serializable {
         return set;
     }
 
-    void addEntry(double value) {
+    public void addEntry(double value) {
         LineDataSeriazable data = (LineDataSeriazable) mBaseChart.getData();
 
         if (data != null) {

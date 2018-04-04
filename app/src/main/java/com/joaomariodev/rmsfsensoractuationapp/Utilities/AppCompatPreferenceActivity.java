@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Utilities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
 import android.content.Intent;
 import android.os.Bundle;

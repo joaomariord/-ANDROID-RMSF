@@ -1,9 +1,7 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,13 +19,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.ActionFragment;
+import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.CloudFragment;
+import com.joaomariodev.rmsfsensoractuationapp.R;
+
 import org.json.JSONException;
 
 import java.lang.ref.WeakReference;
 
 
 public class MainActivity extends AppCompatActivity
-                            implements CloudFragment.OnCloudFragmentInteractionListener, ActionFragment.OnActionFragmentInteractionListener{
+                            implements CloudFragment.OnCloudFragmentInteractionListener, ActionFragment.OnActionFragmentInteractionListener {
 
     ImageView mBadConnectivity;
     ViewPager mViewPager;
@@ -38,8 +40,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        this.isNightModeEnabled = mPrefs.getBoolean("NIGHT_MODE", false);
+       this.isNightModeEnabled = App.prefs.getNightMode();
 
         if (isNightModeEnabled()) {
             setTheme(R.style.AppThemeDark);
@@ -95,8 +96,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        if (isNightModeEnabled()!=mPrefs.getBoolean("NIGHT_MODE", false)) {
+        if (isNightModeEnabled()!= App.prefs.getNightMode()) {
             if(isNightModeEnabled())   setTheme(R.style.AppThemeDark);
             else setTheme(R.style.AppThemeLight);
 

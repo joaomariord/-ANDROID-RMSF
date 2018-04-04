@@ -1,10 +1,8 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.joaomariodev.rmsfsensoractuationapp.Controller.App;
+import com.joaomariodev.rmsfsensoractuationapp.R;
+import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
+import com.joaomariodev.rmsfsensoractuationapp.Utilities.LineDataSeriazable;
+import com.joaomariodev.rmsfsensoractuationapp.Utilities.realtimeChart;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -112,18 +115,15 @@ public class CloudFragment extends Fragment {
         super.onResume();
         Log.d(TAG, "onResume: ");
 
-        SharedPreferences mPrefs =  PreferenceManager.getDefaultSharedPreferences(getContext());
-
-
-        CloudApi.setBaseUrl(mPrefs.getString("API_SERVER","http://jsonplaceholder.typicode.com"));
-        CloudApi.setPORT(Integer.parseInt(mPrefs.getString("API_PORT","80")));
+        CloudApi.setBaseUrl(App.prefs.getApiServer());
+        CloudApi.setPORT(Integer.parseInt(App.prefs.getApiPort()));
         try{
-            BACKGROUND_SYNC_PERIOD = Long.parseLong(mPrefs.getString("sync_frequency","-1"));
+            BACKGROUND_SYNC_PERIOD = Long.parseLong(App.prefs.getBackgroundSyncPeriod());
         }
         catch (NullPointerException e){
             BACKGROUND_SYNC_PERIOD = -1;
         }
-
+        Log.d("BCKSYNC", App.prefs.getBackgroundSyncPeriod());
         if(BACKGROUND_SYNC_PERIOD != -1){
             backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
         }
@@ -289,7 +289,7 @@ public class CloudFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    interface OnCloudFragmentInteractionListener {
+    public interface OnCloudFragmentInteractionListener {
         void onCloudFragmentInteraction(boolean connectivityState);
     }
 

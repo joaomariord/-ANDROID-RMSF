@@ -20,17 +20,6 @@
 
     <EditTextPreference
         android:capitalize="words"
-        android:defaultValue="users"
-        android:inputType="text"
-        android:key="API_ROUTE"
-        android:maxLines="1"
-        android:persistent="true"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_api_route" />
-
-    <EditTextPreference
-        android:capitalize="words"
         android:defaultValue="80"
         android:inputType="number"
         android:key="API_PORT"

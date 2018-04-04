@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.joaomariodev.rmsfsensoractuationapp.R;
+import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -251,7 +253,7 @@ public class ActionFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    interface OnActionFragmentInteractionListener {
+    public interface OnActionFragmentInteractionListener {
         void OnActionFragmentInteraction(boolean connectivityState);
     }
 }

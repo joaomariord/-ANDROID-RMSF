@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Services;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -8,32 +8,32 @@ import com.loopj.android.http.RequestParams;
  * Created by joaom on 20/02/2018. To make simpler http communications
  */
 
-class CloudApi {
+public class CloudApi {
     private static String BASE_URL = "http://rmsf-server.herokuapp.com";
     private static int PORT = 80;
     private static AsyncHttpClient client = new AsyncHttpClient(PORT);
 
-    static void setBaseUrl(String baseUrl) {
+    public static void setBaseUrl(String baseUrl) {
         BASE_URL = baseUrl + "/";
     }
 
-    static void setPORT(int PORT) {
+    public static void setPORT(int PORT) {
         CloudApi.PORT = PORT;
     }
 
-    static void get(AsyncHttpResponseHandler responseHandler) {
+    public static void get(AsyncHttpResponseHandler responseHandler) {
         String get_route = "status";
         client.get(getAbsoluteUrl(get_route), null, responseHandler);
     }
 
-    static void post(String postRoute,boolean setParam, AsyncHttpResponseHandler responseHandler) {
+    public static void post(String postRoute,boolean setParam, AsyncHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("set", setParam);
         params.setUseJsonStreamer(true);
         client.post(getAbsoluteUrl(postRoute), params , responseHandler);
     }
 
-    static void post(String postRoute,Double setParam, AsyncHttpResponseHandler responseHandler) {
+    public static void post(String postRoute,Double setParam, AsyncHttpResponseHandler responseHandler) {
         RequestParams params = new RequestParams();
         params.put("set", setParam);
         params.setUseJsonStreamer(true);

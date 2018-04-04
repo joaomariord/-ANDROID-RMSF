@@ -1,4 +1,4 @@
-package com.joaomariodev.rmsfsensoractuationapp;
+package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
 
 import android.annotation.TargetApi;
@@ -13,6 +13,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+
+import com.joaomariodev.rmsfsensoractuationapp.R;
+import com.joaomariodev.rmsfsensoractuationapp.Utilities.AppCompatPreferenceActivity;
 
 import java.util.List;
 
@@ -147,7 +150,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("API_ROUTE"));
             bindPreferenceSummaryToValue(findPreference("API_PORT"));
             bindPreferenceSummaryToValue(findPreference("API_SERVER"));
         }
