@@ -44,10 +44,12 @@
                 android:layout_alignBottom="@+id/imageView9"
                 android:layout_toEndOf="@+id/imageView9"
                 android:ems="10"
+                android:fontFamily="@font/roboto_slab"
                 android:inputType="numberDecimal"
                 android:labelFor="@+id/temperature"
-                android:textColor="@color/colorSplash"
-                tools:ignore="LabelFor" />
+                android:textColor="?attr/colorAccent"
+                tools:ignore="LabelFor"
+                tools:text="Test Text Filling This Space" />
 
             <Button
                 android:id="@+id/TempThreshSend"
@@ -80,13 +82,15 @@
                 android:id="@+id/editValueSmoke"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/imageView8"
+                android:layout_centerVertical="true"
                 android:layout_toEndOf="@+id/imageView8"
                 android:ems="10"
+                android:fontFamily="@font/roboto_slab"
                 android:inputType="numberDecimal"
                 android:labelFor="@+id/smokeTextViewThresh"
-                android:textColor="@color/colorSplash"
-                tools:ignore="LabelFor" />
+                android:textColor="?attr/colorAccent"
+                tools:ignore="LabelFor"
+                tools:text="Test Text Filling This Space" />
 
             <Button
                 android:id="@+id/SmokeThreshSend"

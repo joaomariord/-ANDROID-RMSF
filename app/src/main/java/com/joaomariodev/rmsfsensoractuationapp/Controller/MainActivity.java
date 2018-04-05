@@ -34,38 +34,32 @@ public class MainActivity extends AppCompatActivity
     ImageView mBadConnectivity;
     ViewPager mViewPager;
     TabLayout tabLayout;
-    private boolean isNightModeEnabled = false;
     private MainActivity.SectionsPagerAdapter mSectionsPagerAdapter;
 
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-       this.isNightModeEnabled = App.prefs.getNightMode();
-
-        if (isNightModeEnabled()) {
-            setTheme(R.style.AppThemeDark);
-        }
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
 
-        mBadConnectivity = (ImageView) findViewById(R.id.badConnectivity);
+        mBadConnectivity = findViewById(R.id.badConnectivity);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mSectionsPagerAdapter = new MainActivity.SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container_swipe);
+        mViewPager = findViewById(R.id.container_swipe);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.getTabAt(0).setText(R.string.views_tab);
         tabLayout.getTabAt(1).setText(R.string.actions_tab);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,23 +82,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-    }
-
-    public boolean isNightModeEnabled() {
-        return isNightModeEnabled;
-    }
-
-    @Override
-    protected void onResume() {
-        if (isNightModeEnabled()!= App.prefs.getNightMode()) {
-            if(isNightModeEnabled())   setTheme(R.style.AppThemeDark);
-            else setTheme(R.style.AppThemeLight);
-
-            recreate();
-            this.isNightModeEnabled = !isNightModeEnabled();
-        }
-
-        super.onResume();
     }
 
     @Override

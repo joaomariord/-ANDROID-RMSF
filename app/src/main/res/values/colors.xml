@@ -2,14 +2,12 @@
 <resources>
     <color name="colorPrimary">@color/IstBlue</color>
     <color name="colorPrimaryDark">@color/IstBlueDark</color>
-    <color name="colorAccent">#c1021a</color>
+    <color name="colorAccent">#333333</color>
     <color name="colorSplash">@android:color/holo_blue_light</color>
 
     <color name="colorLightBackground">#efefef</color>
     <color name="colorDarkBackground">#002a3b</color>
-    <color name="accent_material_dark">#fe880c</color>
     <color name="colorDarkBackgroundSafe">#212121</color>
     <color name="IstBlue">#00a0e4</color>
-    <color name="background_material_dark">#ffffff</color>
     <color name="IstBlueDark">#004075</color>
 </resources>

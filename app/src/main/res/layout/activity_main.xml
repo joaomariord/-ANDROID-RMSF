@@ -5,24 +5,27 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.joaomariodev.rmsfsensoractuationapp.Controller.MainActivity">
+    tools:context="com.joaomariodev.rmsfsensoractuationapp.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/toolbar_bkg"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="36dp"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:titleTextColor="@color/colorDarkBackgroundSafe" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="25dp">
+            android:layout_height="25dp"
+            app:tabSelectedTextColor="@android:color/darker_gray"
+            app:tabTextColor="@android:color/darker_gray">
 
         </android.support.design.widget.TabLayout>
 
@@ -32,6 +35,7 @@
         android:id="@+id/container_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/background"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.FloatingActionButton
@@ -40,7 +44,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:tint="@color/colorAccent"
         app:backgroundTint="@android:color/holo_blue_bright"
+        app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_popup_sync" />
 
     <ImageView

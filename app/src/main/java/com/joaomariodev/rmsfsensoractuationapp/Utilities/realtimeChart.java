@@ -83,7 +83,7 @@ public class realtimeChart implements Serializable {
         XAxis xl = mBaseChart.getXAxis();
         xl.setDrawGridLines(false);
         xl.setAvoidFirstLastClipping(false);
-        xl.setTextColor(ColorTemplate.colorWithAlpha(Color.GRAY,255));
+        xl.setTextColor(ColorTemplate.colorWithAlpha(Color.BLACK,255));
         xl.setTextSize(8f);
         xl.setPosition(XAxis.XAxisPosition.BOTTOM);
         xl.setEnabled(true);
@@ -99,7 +99,7 @@ public class realtimeChart implements Serializable {
 
     private void setupData() {
         LineDataSeriazable data = new LineDataSeriazable();
-        data.setValueTextColor(Color.WHITE);
+        data.setValueTextColor(Color.BLACK);
 
         // add empty data
         mBaseChart.setData(data);
@@ -124,11 +124,11 @@ public class realtimeChart implements Serializable {
     private LineDataSet createSet() {
         LineDataSet set = new LineDataSet(null, "Data");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setColors(ColorTemplate.colorWithAlpha(R.color.colorAccent,100));
+        set.setColors(ColorTemplate.colorWithAlpha(R.color.colorAccent,255));
         set.setCircleColor(ColorTemplate.colorWithAlpha(Color.BLUE,60));
         set.setLineWidth(2f);
         set.setCircleRadius(4f);
-        set.setValueTextColor(ColorTemplate.colorWithAlpha(Color.GRAY,255));
+        set.setValueTextColor(ColorTemplate.colorWithAlpha(R.color.colorAccent,255));
         set.setValueTextSize(10f);
         set.setHighlightEnabled(true);
         // To show values of each point

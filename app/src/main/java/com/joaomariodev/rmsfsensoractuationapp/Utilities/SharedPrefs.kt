@@ -13,10 +13,6 @@ class SharedPrefs(context: Context) {
         get() = prefs.getString("API_SERVER","http://rmsf-server.herokuapp.com")
         set(value) { Log.d("SET", "SET NOT ALLOWED") }
 
-    var nightMode : Boolean
-        get() = prefs.getBoolean("NIGHT_MODE",false)
-        set(value) { Log.d("SET", "SET NOT ALLOWED") }
-
     var apiPort : String
         get() = prefs.getString("API_PORT","80")
         set(value) { Log.d("SET", "SET NOT ALLOWED") }

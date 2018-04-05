@@ -79,5 +79,6 @@
     <string name="temperature">Temperature</string>
     <string name="alarm">Alarm</string>
     <string name="water_pump">Water Pump</string>
+    <string name="background_image">Background Image</string>
 
 </resources>
