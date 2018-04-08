@@ -1,6 +1,5 @@
 package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.ActionFragment;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.CloudFragment;
 import com.joaomariodev.rmsfsensoractuationapp.R;
@@ -37,7 +35,6 @@ public class MainActivity extends AppCompatActivity
     ImageView mBadConnectivity;
     ViewPager mViewPager;
     TabLayout tabLayout;
-    Context mContext;
     private MainActivity.SectionsPagerAdapter mSectionsPagerAdapter;
 
     @SuppressWarnings("ConstantConditions")
@@ -87,9 +84,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
-        String token = FirebaseInstanceId.getInstance().getToken();
-        InstanceIdService.sendTokenToServer(token);
+        if(!App.prefs.isFCMtokenStored()){
+            InstanceIdService.retryTokenStore(this);
+        }
     }
 
     @Override

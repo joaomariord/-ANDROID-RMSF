@@ -7,16 +7,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.MainActivity;
 import com.joaomariodev.rmsfsensoractuationapp.R;
-
-/**
- * Created by joaom on 07/04/2018.
- */
 
 public class MessageReceiver extends FirebaseMessagingService{
     private static final int REQUEST_CODE = 1;
@@ -44,6 +40,7 @@ public class MessageReceiver extends FirebaseMessagingService{
 
         Bitmap logo = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher_round);
 
+        @SuppressWarnings("deprecation")
         Notification notification = new NotificationCompat.Builder(this)
                 .setContentText(msg)
                 .setContentTitle(title)

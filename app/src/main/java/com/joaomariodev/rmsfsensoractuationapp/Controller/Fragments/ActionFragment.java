@@ -15,15 +15,13 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.joaomariodev.rmsfsensoractuationapp.R;
 import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
 
 public class ActionFragment extends Fragment {
 
@@ -39,6 +37,7 @@ public class ActionFragment extends Fragment {
     Switch mAlarmToggle;
     Switch mWaterPumpToggle;
 
+    @SuppressWarnings("unused")
     private OnActionFragmentInteractionListener mListener;
     private Runnable backgroundSync;
 
@@ -108,27 +107,17 @@ public class ActionFragment extends Fragment {
             }
         });
 
-        final AsyncHttpResponseHandler generalResponseHandler =  new AsyncHttpResponseHandler() {
+        final Response.Listener<JSONObject> generalResponseHandler = new Response.Listener<JSONObject>() {
             @Override
-            public void onSuccess(final int statusCode, Header[] headers, byte[] responseBody) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(statusCode!=200){
-                            Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+            public void onResponse(JSONObject response) {
+               Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
             }
+        };
 
+        final Response.ErrorListener generalErrorHandler = new Response.ErrorListener() {
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
-                    }
-                });
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -136,14 +125,14 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
-                CloudApi.post("thr/gas", thisDouble, generalResponseHandler);
+                CloudApi.post("thr/gas", thisDouble, generalResponseHandler, generalErrorHandler);
             }
         });
         mTempSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
-                CloudApi.post("thr/temp", thisDouble, generalResponseHandler);
+                CloudApi.post("thr/temp", thisDouble, generalResponseHandler, generalErrorHandler);
             }
         });
 
@@ -160,7 +149,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-                CloudApi.post("set/alrt", b, generalResponseHandler);
+                CloudApi.post("set/alrt", b, generalResponseHandler, generalErrorHandler);
             }
         });
 
@@ -168,7 +157,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-                CloudApi.post("set/wtr", b, generalResponseHandler);
+                CloudApi.post("set/wtr", b, generalResponseHandler, generalErrorHandler);
             }
         });
 
@@ -218,15 +207,15 @@ public class ActionFragment extends Fragment {
 
     public void getDataOnBackGround() throws JSONException {
 
-        CloudApi.get(new JsonHttpResponseHandler() {
+        CloudApi.get(new Response.Listener<JSONObject>() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateAndRenderData(response);
-                    }
-                });
+            public void onResponse(JSONObject response) {
+                updateAndRenderData(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("GET Error", error.toString());
             }
         });
     }
@@ -254,6 +243,7 @@ public class ActionFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnActionFragmentInteractionListener {
+        @SuppressWarnings("unused")
         void OnActionFragmentInteraction(boolean connectivityState);
     }
 }

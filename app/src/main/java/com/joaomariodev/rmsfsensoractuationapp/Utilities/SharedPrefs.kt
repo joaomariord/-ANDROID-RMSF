@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.util.Log
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 
 class SharedPrefs(context: Context) {
-    val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     var apiServer : String
         get() = prefs.getString("API_SERVER","http://rmsf-server.herokuapp.com")
@@ -17,6 +18,10 @@ class SharedPrefs(context: Context) {
         get() = prefs.getString("API_PORT","80")
         set(value) { Log.d("SET", "SET NOT ALLOWED") }
 
+    var isFCMtokenStored : Boolean
+        get() = prefs.getBoolean("FCM_TOKEN_STATE",false)
+        set(value) = prefs.edit().putBoolean("FCM_TOKEN_STATE", value).apply()
+
     var backgroundSyncPeriod : String
         get() {
             return prefs.getString("sync_frequency", "-1")
@@ -24,5 +29,5 @@ class SharedPrefs(context: Context) {
         }
         set(value) { Log.d("SET", "SET NOT ALLOWED") }
 
-    val requestQueue = Volley.newRequestQueue(context)
+    val requestQueue: RequestQueue = Volley.newRequestQueue(context)
 }

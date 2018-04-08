@@ -11,15 +11,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.github.mikephil.charting.charts.LineChart;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.App;
 import com.joaomariodev.rmsfsensoractuationapp.R;
 import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.LineDataSeriazable;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.realtimeChart;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -115,8 +115,7 @@ public class CloudFragment extends Fragment {
         super.onResume();
         Log.d(TAG, "onResume: ");
 
-        CloudApi.setBaseUrl(App.prefs.getApiServer());
-        CloudApi.setPORT(Integer.parseInt(App.prefs.getApiPort()));
+        CloudApi.setBaseUrl(App.prefs.getApiServer(), App.prefs.getApiPort());
         try{
             BACKGROUND_SYNC_PERIOD = Long.parseLong(App.prefs.getBackgroundSyncPeriod());
         }
@@ -185,96 +184,37 @@ public class CloudFragment extends Fragment {
     }
 
     public void getDataOnClick() throws JSONException {
-        CloudApi.get( new JsonHttpResponseHandler() {
+        CloudApi.get(new Response.Listener<JSONObject>() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if(renderData(response.getJSONObject(0)))
-                                Toast.makeText(getContext(),"Data Updated",Toast.LENGTH_SHORT).show();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            public void onResponse(JSONObject response) {
+                if(renderData(response)){
+                    backgroundCheck.successfulSyncWarn();
+                    Toast.makeText(getContext(),"Data Updated",Toast.LENGTH_SHORT).show();
+                }
             }
-
+        }, new Response.ErrorListener() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        renderData(response);
-                    }
-                });
-                backgroundCheck.successfulSyncWarn();
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        backgroundCheck.failedSyncWarn();
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        backgroundCheck.failedSyncWarn();
-                    }
-                });
+            public void onErrorResponse(VolleyError error) {
+                backgroundCheck.failedSyncWarn();
+                Log.d("GET Status", error.toString());
             }
         });
-
     }
 
     public void getDataOnBackGround() throws JSONException {
-
-            CloudApi.get(new JsonHttpResponseHandler() {
+        CloudApi.get(new Response.Listener<JSONObject>() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONArray response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if(renderData(response.getJSONObject(0))){
-                                backgroundCheck.successfulSyncWarn();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            public void onResponse(JSONObject response) {
+                if(renderData(response)){
+                    backgroundCheck.successfulSyncWarn();
+                    Toast.makeText(getContext(),"Data Updated",Toast.LENGTH_SHORT).show();
+                }
             }
-
+        }, new Response.ErrorListener() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(renderData(response)){
-                            backgroundCheck.successfulSyncWarn();
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONObject errorResponse) {
+            public void onErrorResponse(VolleyError error) {
                 backgroundCheck.failedSyncWarn();
-            }
-
-            @Override
-            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                backgroundCheck.failedSyncWarn();
+                Log.d("GET Status", error.toString());
             }
         });
     }

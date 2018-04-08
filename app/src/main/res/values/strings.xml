@@ -81,4 +81,7 @@
     <string name="water_pump">Water Pump</string>
     <string name="background_image">Background Image</string>
 
+    <string name="channel_name">RMSFChannel</string>
+    <string name="channel_description">RMSF App warnings channel</string>
+
 </resources>

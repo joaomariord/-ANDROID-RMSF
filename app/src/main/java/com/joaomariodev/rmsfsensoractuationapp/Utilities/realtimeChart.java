@@ -158,7 +158,7 @@ public class realtimeChart implements Serializable {
             mBaseChart.setVisibleXRangeMaximum(VISIBLEDATAPAIRS);
 
             // move to the latest entry if user is seeing the latest entry
-            if (((int) mBaseChart.getHighestVisibleX()) >= data.getEntryCount() - 2 )
+            if (((int) mBaseChart.getHighestVisibleX()) >= data.getEntryCount() - 4 )
                     mBaseChart.moveViewToX(data.getEntryCount());
 
         }
