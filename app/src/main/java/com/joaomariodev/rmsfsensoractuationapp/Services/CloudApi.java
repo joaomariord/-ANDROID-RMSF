@@ -40,6 +40,13 @@ public class CloudApi {
         client.post(getAbsoluteUrl(postRoute), params , responseHandler);
     }
 
+    public static void post(String postRoute,String setParam, AsyncHttpResponseHandler responseHandler) {
+        RequestParams params = new RequestParams();
+        params.put("token", setParam);
+        params.setUseJsonStreamer(true);
+        client.post(getAbsoluteUrl(postRoute), params , responseHandler);
+    }
+
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }

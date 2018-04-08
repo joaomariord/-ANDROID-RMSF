@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "752867194640",
+    "firebase_url": "https://rmsfsensoractuationapp.firebaseio.com",
+    "project_id": "rmsfsensoractuationapp",
+    "storage_bucket": "rmsfsensoractuationapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752867194640:android:afd1574e24852b3b",
+        "android_client_info": {
+          "package_name": "com.joaomariodev.rmsfsensoractuationapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752867194640-sgap926f1lma6o228ouurv9l8ov2sogm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeIqz3Wf480A7_ENPZ7ysi-rtzsDaC8N4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

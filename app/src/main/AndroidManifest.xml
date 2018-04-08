@@ -31,9 +31,28 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".Services.MessageReceiver">
+            <intent-filter>
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".Services.InstanceIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_info_black_24dp" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@android:color/holo_red_dark" />
+
     </application>
 
 </manifest>
