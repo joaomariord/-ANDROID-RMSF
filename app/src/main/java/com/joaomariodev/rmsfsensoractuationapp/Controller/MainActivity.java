@@ -1,6 +1,7 @@
 package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -54,11 +55,14 @@ public class MainActivity extends AppCompatActivity
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container_swipe);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.getTabAt(0).setText(R.string.views_tab);
-        tabLayout.getTabAt(1).setText(R.string.actions_tab);
+
+        if(getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE){
+            tabLayout = findViewById(R.id.tab_layout);
+            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+            tabLayout.setupWithViewPager(mViewPager);
+            tabLayout.getTabAt(0).setText(R.string.views_tab);
+            tabLayout.getTabAt(1).setText(R.string.actions_tab);
+        }
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

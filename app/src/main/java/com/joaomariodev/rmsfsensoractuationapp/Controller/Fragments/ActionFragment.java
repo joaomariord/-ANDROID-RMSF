@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class ActionFragment extends Fragment {
     Handler handler;
     Switch mAlarmToggle;
     Switch mWaterPumpToggle;
+    ProgressBar mProgress;
 
     @SuppressWarnings("unused")
     private OnActionFragmentInteractionListener mListener;
@@ -78,6 +80,8 @@ public class ActionFragment extends Fragment {
         Log.d(TAG, "onCreateView: ");
         View rootView = inflater.inflate(R.layout.fragment_action, container, false);
 
+        mProgress = rootView.findViewById(R.id.action_frag_progress);
+
         mSmokeThresh = rootView.findViewById(R.id.editValueSmoke);
         mTempThresh = rootView.findViewById(R.id.editValueTemp);
         mSmokeSendBtn = rootView.findViewById(R.id.SmokeThreshSend);
@@ -107,10 +111,10 @@ public class ActionFragment extends Fragment {
             }
         });
 
-        final Response.Listener<JSONObject> generalResponseHandler = new Response.Listener<JSONObject>() {
+        final Response.Listener<String> generalResponseHandler = new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject response) {
-               Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
+            public void onResponse(String response) {
+                Log.d("POST general", "Success");
             }
         };
 
@@ -118,6 +122,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
+                Log.d("POST general", error.toString() + " " + error.getMessage());
             }
         };
 
@@ -126,6 +131,7 @@ public class ActionFragment extends Fragment {
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
                 CloudApi.post("thr/gas", thisDouble, generalResponseHandler, generalErrorHandler);
+                startSpinner();
             }
         });
         mTempSendBtn.setOnClickListener(new View.OnClickListener() {
@@ -133,6 +139,7 @@ public class ActionFragment extends Fragment {
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
                 CloudApi.post("thr/temp", thisDouble, generalResponseHandler, generalErrorHandler);
+                startSpinner();
             }
         });
 
@@ -150,6 +157,7 @@ public class ActionFragment extends Fragment {
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
                 CloudApi.post("set/alrt", b, generalResponseHandler, generalErrorHandler);
+                startSpinner();
             }
         });
 
@@ -158,6 +166,7 @@ public class ActionFragment extends Fragment {
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
                 CloudApi.post("set/wtr", b, generalResponseHandler, generalErrorHandler);
+                startSpinner();
             }
         });
 
@@ -211,11 +220,13 @@ public class ActionFragment extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 updateAndRenderData(response);
+                stopSpinner();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("GET Error", error.toString());
+                stopSpinner();
             }
         });
     }
@@ -230,6 +241,14 @@ public class ActionFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    void startSpinner(){
+        mProgress.setVisibility(View.VISIBLE);
+    }
+
+    void stopSpinner(){
+        mProgress.setVisibility(View.INVISIBLE);
     }
 
     /**

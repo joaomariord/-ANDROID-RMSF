@@ -207,7 +207,6 @@ public class CloudFragment extends Fragment {
             public void onResponse(JSONObject response) {
                 if(renderData(response)){
                     backgroundCheck.successfulSyncWarn();
-                    Toast.makeText(getContext(),"Data Updated",Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {

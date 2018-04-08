@@ -1,9 +1,11 @@
 package com.joaomariodev.rmsfsensoractuationapp.Services;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.App;
 
 import org.json.JSONException;
@@ -30,7 +32,7 @@ public class CloudApi {
 
     }
 
-    public static void post(String postRoute,boolean setParam, Response.Listener<JSONObject> res, Response.ErrorListener err) {
+    public static void post(String postRoute,boolean setParam, Response.Listener<String> res, Response.ErrorListener err) {
 
         JSONObject params = new JSONObject();
         try {
@@ -42,7 +44,7 @@ public class CloudApi {
         jsonPost(postRoute, params, res, err);
     }
 
-    public static void post(String postRoute,Double setParam, Response.Listener<JSONObject> res, Response.ErrorListener err) {
+    public static void post(String postRoute,Double setParam, Response.Listener<String> res, Response.ErrorListener err) {
         JSONObject params = new JSONObject();
         try {
             params.put("set", setParam);
@@ -53,8 +55,19 @@ public class CloudApi {
         jsonPost(postRoute, params, res, err);
     }
 
-    private static void jsonPost(String postRoute, JSONObject params, Response.Listener<JSONObject> res, Response.ErrorListener err){
-        JsonRequest postChangesRequest = new JsonObjectRequest(Request.Method.POST, CloudApi.getUrl(postRoute), params, res , err );
+    private static void jsonPost(String postRoute, final JSONObject params, Response.Listener<String> res, Response.ErrorListener err){
+
+        StringRequest postChangesRequest = new StringRequest(Request.Method.POST, CloudApi.getUrl(postRoute), res , err ){
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return params.toString().getBytes();
+            }
+        };
         App.prefs.getRequestQueue().add(postChangesRequest);
     }
 }
