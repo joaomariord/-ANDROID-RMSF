@@ -1,18 +1,9 @@
 package com.joaomariodev.rmsfsensoractuationapp.Services;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.joaomariodev.rmsfsensoractuationapp.Controller.MainActivity;
-import com.joaomariodev.rmsfsensoractuationapp.R;
 
 public class MessageReceiver extends FirebaseMessagingService{
     private static final int REQUEST_CODE = 1;
@@ -28,12 +19,12 @@ public class MessageReceiver extends FirebaseMessagingService{
 
         final String title = remoteMessage.getData().get("title");
         final String message = remoteMessage.getData().get("body");
-
+        Log.d("Push Service", remoteMessage.toString());
         showNotifications(title, message);
     }
 
     private void showNotifications(String title, String msg) {
-        Intent i = new Intent(this, MainActivity.class);
+        /*Intent i = new Intent(this, MainActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, REQUEST_CODE,
                 i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -55,5 +46,6 @@ public class MessageReceiver extends FirebaseMessagingService{
         if (manager != null) {
             manager.notify(NOTIFICATION_ID,notification);
         }
+        */
     }
 }

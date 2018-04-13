@@ -18,16 +18,26 @@ class SharedPrefs(context: Context) {
         get() = prefs.getString("API_PORT","80")
         set(value) { Log.d("SET", "SET NOT ALLOWED") }
 
-    var isFCMtokenStored : Boolean
-        get() = prefs.getBoolean("FCM_TOKEN_STATE",false)
-        set(value) = prefs.edit().putBoolean("FCM_TOKEN_STATE", value).apply()
+    var StoredFCMtoken : String
+        get() = prefs.getString("FCM_TOKEN","")
+        set(value) = prefs.edit().putString("FCM_TOKEN", value).apply()
 
-    var backgroundSyncPeriod : String
-        get() {
-            return prefs.getString("sync_frequency", "-1")
+    var LoggedIn : Boolean
+        get() = prefs.getBoolean("LOGGED_IN", false)
+        set(value) = prefs.edit().putBoolean("LOGGED_IN",value).apply()
 
-        }
-        set(value) { Log.d("SET", "SET NOT ALLOWED") }
+    var LoginToken : String
+        get() = prefs.getString("LOGIN_TOKEN", "")
+        set(value) = prefs.edit().putString("LOGIN_TOKEN", value).apply()
 
-    val requestQueue: RequestQueue = Volley.newRequestQueue(context)
+    var userEmail : String
+        get() = prefs.getString("USER_EMAIL", "")
+        set(value) = prefs.edit().putString("USER_EMAIL", value).apply()
+
+    var userName: String
+        get() = prefs.getString("USER_NAME", "")
+        set(value) = prefs.edit().putString("USER_NAME", value).apply()
+
+
+    val requestQueue: RequestQueue = Volley.newRequestQueue(context, CustomHurlClass())
 }

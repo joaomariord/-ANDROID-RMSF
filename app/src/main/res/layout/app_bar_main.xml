@@ -17,8 +17,16 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="36dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="@color/colorDarkBackgroundSafe" />
+            app:titleTextColor="@android:color/black" />
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            app:tabSelectedTextColor="@android:color/darker_gray"
+            app:tabTextColor="@android:color/darker_gray">
+
+        </android.support.design.widget.TabLayout>
 
     </android.support.design.widget.AppBarLayout>
 

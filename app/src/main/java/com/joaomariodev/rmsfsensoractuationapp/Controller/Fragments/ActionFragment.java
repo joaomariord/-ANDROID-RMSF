@@ -19,21 +19,18 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.joaomariodev.rmsfsensoractuationapp.R;
-import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ActionFragment extends Fragment {
 
-    private static final long BACKGROUND_SYNC_PERIOD = 3000;
     String TAG = "DEBUG";
 
     EditText mTempThresh;
     EditText mSmokeThresh;
     Button mSmokeSendBtn;
     Button mTempSendBtn;
-    Handler backgroundHandler;
     Handler handler;
     Switch mAlarmToggle;
     Switch mWaterPumpToggle;
@@ -41,13 +38,9 @@ public class ActionFragment extends Fragment {
 
     @SuppressWarnings("unused")
     private OnActionFragmentInteractionListener mListener;
-    private Runnable backgroundSync;
-
 
     public ActionFragment() {
         handler = new Handler();
-
-        backgroundHandler = new Handler();
 
         Log.d(TAG, "CloudFragment: ");
     }
@@ -60,18 +53,6 @@ public class ActionFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
-        backgroundSync = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    getDataOnBackGround();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    backgroundHandler.postDelayed(this,BACKGROUND_SYNC_PERIOD);
-                }
-            }
-        };
     }
 
     @Override
@@ -130,7 +111,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
-                CloudApi.post("thr/gas", thisDouble, generalResponseHandler, generalErrorHandler);
+               // CloudApi.post("thr/gas", thisDouble, generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -138,7 +119,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
-                CloudApi.post("thr/temp", thisDouble, generalResponseHandler, generalErrorHandler);
+               // CloudApi.post("thr/temp", thisDouble, generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -156,7 +137,7 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-                CloudApi.post("set/alrt", b, generalResponseHandler, generalErrorHandler);
+               // CloudApi.post("set/alrt", b, generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -165,12 +146,18 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-                CloudApi.post("set/wtr", b, generalResponseHandler, generalErrorHandler);
+              //  CloudApi.post("set/wtr", b, generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
 
+        mSmokeSendBtn.setEnabled(false);
+        mTempSendBtn.setEnabled(false);
+        mAlarmToggle.setEnabled(false);
+        mWaterPumpToggle.setEnabled(false);
+
         return rootView;
+        //TODO: START BROADCAST LISTENER
     }
 
     @Override
@@ -189,15 +176,15 @@ public class ActionFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-        backgroundHandler.postDelayed(backgroundSync, BACKGROUND_SYNC_PERIOD);
+
     }
 
     //Where we pause the background check
     @Override
     public void onStop() {
         Log.d(TAG, "onStop: ");
+        //TODO: STOP BROADCAST LISTENER
         super.onStop();
-        backgroundHandler.removeCallbacks(backgroundSync);
     }
 
     @Override
@@ -210,25 +197,7 @@ public class ActionFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        backgroundHandler.removeCallbacks(backgroundSync);
         mListener = null;
-    }
-
-    public void getDataOnBackGround() throws JSONException {
-
-        CloudApi.get(new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                updateAndRenderData(response);
-                stopSpinner();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("GET Error", error.toString());
-                stopSpinner();
-            }
-        });
     }
 
     void updateAndRenderData(JSONObject data){
@@ -241,6 +210,7 @@ public class ActionFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        stopSpinner();
     }
 
     void startSpinner(){
