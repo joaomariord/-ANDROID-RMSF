@@ -1,6 +1,6 @@
 package com.joaomariodev.rmsfsensoractuationapp.Model
 
-//TODO: FILL THIS WITH DEVICE FORMAT
+//DEVICE FORMAT
 class TTNDevice (var deviceID:String){
         var temperature_status: String = ""
         var temperature_threshold : String = ""

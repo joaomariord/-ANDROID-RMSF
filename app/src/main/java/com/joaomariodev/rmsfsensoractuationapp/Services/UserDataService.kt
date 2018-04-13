@@ -76,6 +76,7 @@ object UserDataService {
     fun logout(){
         email = ""
         name = ""
+        //CLEAR APPS AND DEVICES LIST
         appsList.clear()
         App.prefs.LoginToken = ""
         App.prefs.userEmail = ""
@@ -84,7 +85,6 @@ object UserDataService {
 
         selectedApplication = null
         selectedDevice = null
-        //DONE: CLEAR APPS AND DEVICES LIST
         //TODO: CLEAR FRAGMENTS DISPLAY DATA
     }
 }

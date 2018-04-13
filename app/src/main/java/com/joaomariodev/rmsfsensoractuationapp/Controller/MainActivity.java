@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
 
                     final View dialogView = inflater.inflate(R.layout.add_device_dialog, null);
 
-                    //TODO: Give spinner its adapter, with all present apps ids
+                    //Give spinner its adapter, with all present apps ids
                     ArrayList<String> appsStringList = new ArrayList<>();
 
                     int list_size = UserDataService.INSTANCE.getAppsList().size();
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity
         drawer_layout.findViewById(R.id.addDeviceBtn).setEnabled(false);
         drawer_layout.findViewById(R.id.navHeaderSettingsBtn).setOnClickListener(navHeaderSettingsBtnClicked);
 
-        //TODO: Add applications and devices expandable list adapter
+        //applications and devices expandable list adapter
         appsAndDevicesAdapter = new AppsAndDevicesAdapter(this);
         ExpandableListView appsAndDevicesELV = findViewById(R.id.appsAndDevicesList);
         appsAndDevicesELV.setAdapter(appsAndDevicesAdapter);
