@@ -28,6 +28,7 @@ class JsonObjectRequestAuthenticated extends JsonObjectRequest {
 
 
 public class CloudApi {
+
     private static String BASE_URL = "http://rmsf-server.herokuapp.com";
 
     public static void setBaseUrl(String baseUrl, String port) {
@@ -180,7 +181,7 @@ public class CloudApi {
     //Auth, appID, appKey
     public static void postApp(String appID, String appKey,
                                   Response.Listener<JSONObject> res,
-                                  Response.ErrorListener err){
+                                  Response.ErrorListener err ){
         JSONObject body = new JSONObject();
         try {
             body.put("appID", appID);
@@ -318,6 +319,8 @@ public class CloudApi {
     public enum Configs {
         GAS, ALARM, TEMPERATURE, WATERPUMP
     }
+
+
 }
 
 

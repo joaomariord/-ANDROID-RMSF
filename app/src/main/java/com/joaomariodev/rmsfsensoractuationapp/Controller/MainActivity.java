@@ -1,5 +1,6 @@
 package com.joaomariodev.rmsfsensoractuationapp.Controller;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.joaomariodev.rmsfsensoractuationapp.Adapters.AppsAndDevicesAdapter;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.ActionFragment;
@@ -53,6 +56,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -61,9 +65,26 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity
                             implements CloudFragment.OnCloudFragmentInteractionListener, ActionFragment.OnActionFragmentInteractionListener {
 
+    final Handler timer = new Handler();
     ImageView mBadConnectivity;
+    final Runnable testAPI = new Runnable() {
+        @Override
+        public void run() {
+            CloudApi.testApi(new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    mBadConnectivity.setVisibility(View.INVISIBLE);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    timer.postDelayed(testAPI, 3000);
+                }
+            });
+        }};
     ViewPager mViewPager;
     TabLayout tabLayout;
+    TextView mSelectedDeviceWarn;
     Context mContext;
     AppsAndDevicesAdapter appsAndDevicesAdapter;
     View.OnClickListener navHeaderLoginBtnClicked = new View.OnClickListener() {
@@ -105,7 +126,7 @@ public class MainActivity extends AppCompatActivity
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(),R.style.RmsfDialogTheme);
                 LayoutInflater inflater = LayoutInflater.from(view.getContext());
 
-                final View dialogView = inflater.inflate(R.layout.add_application_dialog, null);
+                @SuppressLint("InflateParams") final View dialogView = inflater.inflate(R.layout.add_application_dialog, null);
 
                 builder.setView(dialogView)
                         .setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -135,6 +156,8 @@ public class MainActivity extends AppCompatActivity
                                         Log.d("Add_App_Dialog", "Failed to add app");
                                         Toast.makeText(getBaseContext(),"Failed to add application",
                                                 Toast.LENGTH_SHORT).show();
+                                        timeoutErrorHandler(error);
+
                                     }
                                 });
                             }
@@ -161,7 +184,7 @@ public class MainActivity extends AppCompatActivity
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(),R.style.RmsfDialogTheme);
                     LayoutInflater inflater = LayoutInflater.from(view.getContext());
 
-                    final View dialogView = inflater.inflate(R.layout.add_device_dialog, null);
+                    @SuppressLint("InflateParams") final View dialogView = inflater.inflate(R.layout.add_device_dialog, null);
 
                     //Give spinner its adapter, with all present apps ids
                     ArrayList<String> appsStringList = new ArrayList<>();
@@ -184,7 +207,6 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     ArrayList<TTNApplication> AppsList = UserDataService.INSTANCE.getAppsList();
 
-                                    Spinner appSpinner = dialogView.findViewById(R.id.addDev_AppSpinner);
                                     EditText nameTextField = dialogView.findViewById(R.id.addDev_DevID);
                                     //Get spinner value
                                     int selectedPos = appChooser.getSelectedItemPosition();
@@ -213,6 +235,8 @@ public class MainActivity extends AppCompatActivity
                                             Log.d("Add_Dev_Dialog", "Failed to add device");
                                             Toast.makeText(getBaseContext(),"Failed to add device",
                                                     Toast.LENGTH_SHORT).show();
+                                            timeoutErrorHandler(error);
+
                                         }
                                     });
 
@@ -294,6 +318,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("MainActivity_GetStatus", "Cannot get status: "+error.toString());
+                        timeoutErrorHandler(error);
                     }
                 });
             }
@@ -328,6 +353,7 @@ public class MainActivity extends AppCompatActivity
                                                 //Didn't delete -> Toast Warning
                                                 Toast.makeText(getBaseContext(),"Couldn't delete app",
                                                         Toast.LENGTH_SHORT).show();
+                                                timeoutErrorHandler(error);
                                             }
                                         });
                             }
@@ -347,6 +373,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main); //Set base view to this layout
 
         mBadConnectivity = findViewById(R.id.badConnectivity); //Bad connectivity image
+        mSelectedDeviceWarn = findViewById(R.id.noDeviceSelectedWarning);
 
         Toolbar toolbar = findViewById(R.id.toolbar); //Find toolbar and set it's support
         setSupportActionBar(toolbar);
@@ -374,18 +401,28 @@ public class MainActivity extends AppCompatActivity
                     final int childPos = ExpandableListView.getPackedPositionChild(l);
                     final int groupPos = ExpandableListView.getPackedPositionGroup(l);
 
+                    final String appID = UserDataService.INSTANCE.getAppsList().get(groupPos).getAppID();
+                    final String deviceID = UserDataService.INSTANCE.getAppsList().get(groupPos).getDevicesList().get(childPos).getDeviceID();
+
                     new AlertDialog.Builder(mContext)
                             .setTitle("Delete")
                             .setMessage("Do you really want to delete the device?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    CloudApi.deleteDevice(UserDataService.INSTANCE.getAppsList().get(groupPos).getAppID(),
-                                            UserDataService.INSTANCE.getAppsList().get(groupPos).getDevicesList().get(childPos).getDeviceID(),
+                                    CloudApi.deleteDevice(appID, deviceID,
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
-                                                    //Succesfully deleted -> Refresh our list
+                                                    //Check if this device was selected
+                                                    if (Objects.equals(deviceID, UserDataService.INSTANCE.getSelectedDeviceID()) &&
+                                                            Objects.equals(appID, UserDataService.INSTANCE.getSelectedAppID())) {
+                                                        //In the case that it was the same remove it
+                                                        UserDataService.INSTANCE.clearSelectedDevice();
+                                                        mSelectedDeviceWarn.setVisibility(View.VISIBLE);
+                                                        //TODO: WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                    }
+                                                    //Successfully deleted -> Refresh our list
                                                     Intent refreshAppsAndDevs = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
                                                     LocalBroadcastManager.getInstance(getApplicationContext())
                                                             .sendBroadcast(refreshAppsAndDevs);
@@ -396,8 +433,10 @@ public class MainActivity extends AppCompatActivity
                                                     //Didn't delete -> Toast Warning
                                                     Toast.makeText(getBaseContext(),"Couldn't delete device",
                                                             Toast.LENGTH_SHORT).show();
+                                                    timeoutErrorHandler(error);
                                                 }
-                                            });
+                                            }
+                                    );
                                 }})
                             .setNegativeButton(android.R.string.no, null).show();
 
@@ -406,6 +445,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 else if ( ExpandableListView.getPackedPositionType(l) == ExpandableListView.PACKED_POSITION_TYPE_GROUP){
                     final int groupPos = ExpandableListView.getPackedPositionGroup(l);
+
+                    final String appID = UserDataService.INSTANCE.getAppsList().get(groupPos).getAppID();
 
                     new AlertDialog.Builder(mContext)
                             .setTitle("Delete")
@@ -417,7 +458,14 @@ public class MainActivity extends AppCompatActivity
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
-                                                    //Succesfully deleted -> Refresh our list
+                                                    //Check if this app was part of the selected
+                                                    if (Objects.equals(appID, UserDataService.INSTANCE.getSelectedAppID())) {
+                                                        //In the case that it was the same remove it
+                                                        UserDataService.INSTANCE.clearSelectedDevice();
+                                                        mSelectedDeviceWarn.setVisibility(View.VISIBLE);
+                                                        //TODO: WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                    }
+                                                    //Successfully deleted -> Refresh our list
                                                     Intent refreshAppsAndDevs = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
                                                     LocalBroadcastManager.getInstance(getApplicationContext())
                                                             .sendBroadcast(refreshAppsAndDevs);
@@ -428,6 +476,7 @@ public class MainActivity extends AppCompatActivity
                                                     //Didn't delete -> Toast Warning
                                                     Toast.makeText(getBaseContext(),"Couldn't delete app",
                                                             Toast.LENGTH_SHORT).show();
+                                                    timeoutErrorHandler(error);
                                                 }
                                             });
                                 }})
@@ -436,6 +485,20 @@ public class MainActivity extends AppCompatActivity
                     return true;
                 }
                 else return false;
+            }
+        });
+
+        appsAndDevicesELV.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long id) {
+                //Child clicked set device and app in user data service
+
+                String appID = UserDataService.INSTANCE.getAppsList().get(groupPosition).getAppID();
+                String deviceID = UserDataService.INSTANCE.getAppsList().get(groupPosition)
+                        .getDevicesList().get(childPosition).getDeviceID();
+                UserDataService.INSTANCE.setSelectedDevice(appID,deviceID);
+                mSelectedDeviceWarn.setVisibility(View.INVISIBLE);
+                return true;
             }
         });
 
@@ -500,6 +563,14 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(appInvalidDialog);
         App.Companion.mainActivityPaused();
+    }
+
+    void timeoutErrorHandler(VolleyError error){
+        if (error instanceof TimeoutError){
+            mBadConnectivity.setVisibility(View.VISIBLE);
+            timer.postDelayed(testAPI, 3000); //Recheck api status each 3s until success
+
+        }
     }
 
     @Override

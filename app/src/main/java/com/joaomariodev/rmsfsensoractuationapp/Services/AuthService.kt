@@ -11,10 +11,11 @@ object AuthService {
     fun registerUser(email:String, password: String, name:String,complete: (Boolean) -> Unit){
         CloudApi.postRegister(name,email,password, {_ ->
             complete(true)
-        }, { error ->
-            val errorBody = String(error.networkResponse.data,Charsets.UTF_8)
-            Log.d("AuthService", "Could not register user: $errorBody")
-            complete(false)
+        },{ error ->
+                val errorData = error?.networkResponse?.data
+                val errorBody = String(errorData!!,Charsets.UTF_8)
+                Log.d("AuthService", "Could not register user: $errorBody")
+                complete(false)
         })
     }
 
@@ -35,10 +36,10 @@ object AuthService {
                 Log.d("AuthServiceJSON", "JSONexc: " + exc.localizedMessage)
                 complete(false)
             }
-        }, { error ->
-            Log.d("AuthService", "Could not login user:")
-            error.printStackTrace()
-            complete(false)
+        },{error ->
+                Log.d("AuthService", "Could not login user:")
+                error?.printStackTrace()
+                complete(false)
         })
     }
 
@@ -47,9 +48,9 @@ object AuthService {
         CloudApi.postLogout(App.prefs.StoredFCMtoken,{ _ ->
             UserDataService.logout()
             complete(true)
-        }, {error ->
-            Log.d("Error", "Could not logout: $error")
-            complete(false)
+        },{ error ->
+                Log.d("Error", "Could not logout: $error")
+                complete(false)
         })
     }
 
@@ -59,9 +60,8 @@ object AuthService {
             App.prefs.StoredFCMtoken = newToken
             complete(true)
         },{error ->
-            Log.d("Error", "Could not logout: $error")
-            complete(false)
+                Log.d("Error", "Could not refresh token: $error")
+                complete(false)
         })
     }
-
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -27,6 +28,9 @@ public class InstanceIdService extends FirebaseInstanceIdService {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("UpdateToken", error.toString());
+                if( error instanceof TimeoutError) {
+                    Log.d("IntanceIDService", "onErrorResponse: Timeout to api connection");
+                }
             }
         });
     }
