@@ -38,6 +38,5 @@ class SharedPrefs(context: Context) {
         get() = prefs.getString("USER_NAME", "")
         set(value) = prefs.edit().putString("USER_NAME", value).apply()
 
-
     val requestQueue: RequestQueue = Volley.newRequestQueue(context, CustomHurlClass())
 }

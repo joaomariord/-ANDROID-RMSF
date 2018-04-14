@@ -10,10 +10,15 @@ import org.json.JSONObject
 
 object UserDataService {
     var email = ""
+        private set
     var name = ""
+        private set
     var appsList = ArrayList<TTNApplication>()
-    var selectedApplication: TTNApplication? = null
-    var selectedDevice: TTNDevice? = null
+        private set
+    var selectedAppID: String? = null
+        private set
+    var selectedDeviceID: String? = null
+        private set
 
     fun getLoginFromPrefs(){
         this.email = App.prefs.userEmail
@@ -31,8 +36,7 @@ object UserDataService {
 
         App.prefs.LoggedIn = true
 
-        selectedApplication = null
-        selectedDevice = null
+        clearSelectedDevice()
     }
 
     //Made to receive apps list from get /status
@@ -83,8 +87,21 @@ object UserDataService {
         App.prefs.userName = ""
         App.prefs.LoggedIn = false
 
-        selectedApplication = null
-        selectedDevice = null
+        clearSelectedDevice()
         //TODO: CLEAR FRAGMENTS DISPLAY DATA
+    }
+
+    fun clearSelectedDevice() {
+        selectedAppID = null
+        selectedDeviceID = null
+    }
+
+    fun setSelectedDevice(appID: String, deviceID: String){
+        selectedAppID = appID
+        selectedDeviceID = deviceID
+    }
+
+    fun isDeviceSelected(): Boolean{
+        return !(selectedAppID == null && selectedDeviceID == null)
     }
 }

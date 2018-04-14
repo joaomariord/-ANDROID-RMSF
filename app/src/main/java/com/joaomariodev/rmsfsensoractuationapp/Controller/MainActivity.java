@@ -300,6 +300,44 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    private BroadcastReceiver appInvalidDialog = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if(App.prefs.getLoggedIn()){
+                final String appID = intent.getStringExtra("appID");
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.NoAPIDialogTheme);
+                builder.setTitle("Invalid App")
+                        .setMessage("The application " + appID + " is invalid, please remove it")
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Here delete the app automatically
+                                CloudApi.deleteApp(appID,
+                                        new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+                                                //Succesfully deleted -> Refresh our list
+                                                Intent refreshAppsAndDevs = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
+                                                LocalBroadcastManager.getInstance(getApplicationContext())
+                                                        .sendBroadcast(refreshAppsAndDevs);
+                                            }
+                                        }, new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                //Didn't delete -> Toast Warning
+                                                Toast.makeText(getBaseContext(),"Couldn't delete app",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        }).setNeutralButton("Dismiss", null).show();
+            }
+        }
+    };
+
+
+
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -317,7 +355,7 @@ public class MainActivity extends AppCompatActivity
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer_layout.addDrawerListener(toggle);
-        toggle.syncState(); //TODO: Change three stripes button to black
+        toggle.syncState();
         drawer_layout.findViewById(R.id.loginBtnNavHeader).setOnClickListener(navHeaderLoginBtnClicked);
         drawer_layout.findViewById(R.id.addAppBtn).setOnClickListener(navHeaderAddAppBtnClicked);
         drawer_layout.findViewById(R.id.addDeviceBtn).setOnClickListener(navHeaderAddDeviceBtnClicked);
@@ -445,6 +483,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(appInvalidDialog,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_INVAL_APP()));
+        App.Companion.mainActivityResumed();
         //Update base url when coming from settings
         CloudApi.setBaseUrl(App.prefs.getApiServer(),App.prefs.getApiPort());
 
@@ -452,6 +493,13 @@ public class MainActivity extends AppCompatActivity
         Intent userDataChange = new Intent(ConstantsO.INSTANCE.getBROADCAST_USER_LOGGED_IN());
         LocalBroadcastManager.getInstance(getApplicationContext())
                     .sendBroadcast(userDataChange);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(appInvalidDialog);
+        App.Companion.mainActivityPaused();
     }
 
     @Override
@@ -529,6 +577,4 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-
 }

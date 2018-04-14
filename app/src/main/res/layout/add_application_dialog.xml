@@ -25,7 +25,7 @@
         android:layout_marginRight="18dp"
         android:ems="10"
         android:hint="AppID"
-        android:inputType="textPersonName"
+        android:inputType="text"
         android:singleLine="false"
         android:textColor="@android:color/black"
         android:textColorHint="@color/colorAccent" />
@@ -39,7 +39,7 @@
         android:layout_marginRight="18dp"
         android:ems="10"
         android:hint="AppKey"
-        android:inputType="textPersonName"
+        android:inputType="textMultiLine"
         android:textColor="@android:color/black"
         android:textColorHint="@color/colorAccent" />
 </LinearLayout>

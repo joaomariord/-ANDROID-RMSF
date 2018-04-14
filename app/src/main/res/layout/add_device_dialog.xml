@@ -60,7 +60,7 @@
         android:layout_marginRight="18dp"
         android:ems="10"
         android:hint="DeviceID"
-        android:inputType="textPersonName"
+        android:inputType="text"
         android:textColor="@android:color/black"
         android:textColorHint="@color/colorAccent" />
 </LinearLayout>
