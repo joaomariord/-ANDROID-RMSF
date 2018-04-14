@@ -63,6 +63,14 @@ public class realtimeChart implements Serializable {
         this.setLegend();
     }
 
+    public void clear(){
+        for (int i = 0; i < mBaseChart.getData().getDataSetCount(); i++){
+            mBaseChart.getData().removeDataSet(i);
+        }
+        mBaseChart.clear();
+        this.setupData();
+    }
+
     private void setupChart(Context context) {
         CustomMarkerView mv = new CustomMarkerView(context, R.layout.marker_layout);
         mBaseChart.setMarker(mv);

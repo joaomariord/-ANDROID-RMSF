@@ -10,4 +10,5 @@ class TTNDevice (var deviceID:String){
         var water_operational: String = ""
         var alarm_status: String = ""
         var alarm_operational: String = ""
+        var data_initialized: Boolean = false
 }

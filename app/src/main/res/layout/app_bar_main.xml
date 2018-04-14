@@ -60,7 +60,7 @@
         tools:visibility="visible" />
 
     <TextView
-        android:id="@+id/noDeviceSelectedWarning"
+        android:id="@+id/DeviceSelectedTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -69,11 +69,29 @@
         android:fontFamily="@font/roboto_slab"
         android:paddingEnd="3dp"
         android:paddingStart="3dp"
-        android:text="Select a device first"
+        android:text="Please select a device"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/black"
         android:textSize="14sp"
         android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/deviceDataUpdatedTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/select_device_warn_background"
+        android:fontFamily="@font/roboto_slab"
+        android:paddingEnd="3dp"
+        android:paddingStart="3dp"
+        android:text="Device data not initialized"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
 </android.support.design.widget.CoordinatorLayout>

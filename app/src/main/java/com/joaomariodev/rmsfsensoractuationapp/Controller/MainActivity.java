@@ -46,6 +46,7 @@ import com.joaomariodev.rmsfsensoractuationapp.Adapters.AppsAndDevicesAdapter;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.ActionFragment;
 import com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments.CloudFragment;
 import com.joaomariodev.rmsfsensoractuationapp.Model.TTNApplication;
+import com.joaomariodev.rmsfsensoractuationapp.Model.TTNDevice;
 import com.joaomariodev.rmsfsensoractuationapp.R;
 import com.joaomariodev.rmsfsensoractuationapp.Services.AuthService;
 import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity
     ViewPager mViewPager;
     TabLayout tabLayout;
     TextView mSelectedDeviceWarn;
+    FloatingActionButton fab;
+    TextView mDeviceDataUpdatedTV;
     Context mContext;
     AppsAndDevicesAdapter appsAndDevicesAdapter;
     View.OnClickListener navHeaderLoginBtnClicked = new View.OnClickListener() {
@@ -362,7 +365,20 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    private BroadcastReceiver selectedDeviceUpdate = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+                mDeviceDataUpdatedTV.setVisibility(View.INVISIBLE);
+        }
+    };
 
+    private BroadcastReceiver networkTimeout = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mBadConnectivity.setVisibility(View.VISIBLE);
+            timer.postDelayed(testAPI, 3000); //Recheck api status each 3s until success
+        }
+    };
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -373,10 +389,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main); //Set base view to this layout
 
         mBadConnectivity = findViewById(R.id.badConnectivity); //Bad connectivity image
-        mSelectedDeviceWarn = findViewById(R.id.noDeviceSelectedWarning);
+        mSelectedDeviceWarn = findViewById(R.id.DeviceSelectedTV);
 
         Toolbar toolbar = findViewById(R.id.toolbar); //Find toolbar and set it's support
         setSupportActionBar(toolbar);
+
+        mDeviceDataUpdatedTV = findViewById(R.id.deviceDataUpdatedTV);
 
         DrawerLayout drawer_layout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -419,13 +437,17 @@ public class MainActivity extends AppCompatActivity
                                                             Objects.equals(appID, UserDataService.INSTANCE.getSelectedAppID())) {
                                                         //In the case that it was the same remove it
                                                         UserDataService.INSTANCE.clearSelectedDevice();
-                                                        mSelectedDeviceWarn.setVisibility(View.VISIBLE);
-                                                        //TODO: WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                        mSelectedDeviceWarn.setText("Please select a device");
+                                                        //WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                        Intent clear = new Intent(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS());
+                                                        LocalBroadcastManager.getInstance(getApplicationContext())
+                                                                .sendBroadcast(clear);
                                                     }
                                                     //Successfully deleted -> Refresh our list
                                                     Intent refreshAppsAndDevs = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
                                                     LocalBroadcastManager.getInstance(getApplicationContext())
                                                             .sendBroadcast(refreshAppsAndDevs);
+                                                    fab.setVisibility(View.INVISIBLE);
                                                 }
                                             }, new Response.ErrorListener() {
                                                 @Override
@@ -462,8 +484,12 @@ public class MainActivity extends AppCompatActivity
                                                     if (Objects.equals(appID, UserDataService.INSTANCE.getSelectedAppID())) {
                                                         //In the case that it was the same remove it
                                                         UserDataService.INSTANCE.clearSelectedDevice();
-                                                        mSelectedDeviceWarn.setVisibility(View.VISIBLE);
-                                                        //TODO: WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                        mSelectedDeviceWarn.setText("Please select a device");
+                                                        //WARN FRAGMENTS ON NO DEVICE SELECTED
+                                                        Intent clear = new Intent(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS());
+                                                        LocalBroadcastManager.getInstance(getApplicationContext())
+                                                                .sendBroadcast(clear);
+                                                        fab.setVisibility(View.INVISIBLE);
                                                     }
                                                     //Successfully deleted -> Refresh our list
                                                     Intent refreshAppsAndDevs = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
@@ -492,12 +518,62 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long id) {
                 //Child clicked set device and app in user data service
+                if(childPosition == UserDataService.INSTANCE.getSelectedDeviceIter() &&
+                        groupPosition == UserDataService.INSTANCE.getSelectedAppIter()){
+                    //Same device -> Do nothing
+                    return true;
+                }
+                else{
 
-                String appID = UserDataService.INSTANCE.getAppsList().get(groupPosition).getAppID();
-                String deviceID = UserDataService.INSTANCE.getAppsList().get(groupPosition)
-                        .getDevicesList().get(childPosition).getDeviceID();
-                UserDataService.INSTANCE.setSelectedDevice(appID,deviceID);
-                mSelectedDeviceWarn.setVisibility(View.INVISIBLE);
+                    UserDataService.INSTANCE.setSelectedDevice(groupPosition, childPosition);
+                    mSelectedDeviceWarn.setText(UserDataService.INSTANCE.getSelectedDeviceID() +
+                        " on " + UserDataService.INSTANCE.getSelectedAppID());
+                    Intent clear = new Intent(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS());
+                    LocalBroadcastManager.getInstance(getApplicationContext())
+                            .sendBroadcast(clear);
+                }
+
+                //Send most recent data to fragments
+                CloudApi.getStatus(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        UserDataService.INSTANCE.fillAppsList(response);
+                        appsAndDevicesAdapter.notifyDataSetChanged();
+                        Intent update = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS());
+                        TTNDevice selectedDevice = UserDataService.INSTANCE.getAppsList().get(
+                                UserDataService.INSTANCE.getSelectedAppIter()).getDevicesList().get(
+                                        UserDataService.INSTANCE.getSelectedDeviceIter());
+
+                        update.putExtra("gas_threshold", selectedDevice.getGas_threshold());
+                        update.putExtra("temp_threshold", selectedDevice.getTemperature_threshold());
+                        update.putExtra("water_operational", selectedDevice.getWater_operational());
+                        update.putExtra("alarm_operational", selectedDevice.getAlarm_operational());
+                        update.putExtra("gas_status", selectedDevice.getGas_status());
+                        update.putExtra("temp_status", selectedDevice.getTemperature_status());
+                        update.putExtra("water_status", selectedDevice.getWater_status());
+                        update.putExtra("alarm_status", selectedDevice.getAlarm_status());
+                        update.putExtra("initialized", selectedDevice.getData_initialized());
+
+                        LocalBroadcastManager.getInstance(getApplicationContext())
+                                .sendBroadcast(update);
+
+                        if (!selectedDevice.getData_initialized()){
+                            //Device is not initialized -> Show warning
+                            mDeviceDataUpdatedTV.setVisibility(View.VISIBLE);
+                        } else {
+                            //Device is initialized -> Hide warning
+                            mDeviceDataUpdatedTV.setVisibility(View.INVISIBLE);
+                        }
+                        fab.setVisibility(View.VISIBLE);
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MainActivity_GetStatus", "Cannot get status: "+error.toString());
+                        timeoutErrorHandler(error);
+                    }
+                });
                 return true;
             }
         });
@@ -515,32 +591,47 @@ public class MainActivity extends AppCompatActivity
             tabLayout.getTabAt(1).setText(R.string.actions_tab);
         }
 
-        //TODO: Implement a not logged in warning above the fragments
-
-        FloatingActionButton fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Refreshing", Snackbar.LENGTH_SHORT).show();
-                //TODO: GET DATA FROM SERVER
-                CloudFragment cFrag = (CloudFragment) mSectionsPagerAdapter.getFragment(0);
-                if (cFrag != null) {
-                        //TODO: UPDATE FRAGMENT DATA
-                }
-                ActionFragment aFrag =((ActionFragment) mSectionsPagerAdapter.getFragment(1));
-                if(aFrag != null){
-                        //TODO: UPDATE FRAGMENT DATA
-                }
+                CloudApi.getStatus(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        UserDataService.INSTANCE.fillAppsList(response);
+                        appsAndDevicesAdapter.notifyDataSetChanged();
+                        Intent update = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS());
+                        TTNDevice selectedDevice = UserDataService.INSTANCE.getAppsList().get(
+                                UserDataService.INSTANCE.getSelectedAppIter()).getDevicesList().get(
+                                UserDataService.INSTANCE.getSelectedDeviceIter());
+
+                        update.putExtra("gas_threshold", selectedDevice.getGas_threshold());
+                        update.putExtra("temp_threshold", selectedDevice.getTemperature_threshold());
+                        update.putExtra("water_operational", selectedDevice.getWater_operational());
+                        update.putExtra("alarm_operational", selectedDevice.getAlarm_operational());
+                        update.putExtra("gas_status", selectedDevice.getGas_status());
+                        update.putExtra("temp_status", selectedDevice.getTemperature_status());
+                        update.putExtra("water_status", selectedDevice.getWater_status());
+                        update.putExtra("alarm_status", selectedDevice.getAlarm_status());
+                        update.putExtra("initialized", selectedDevice.getData_initialized());
+
+                        LocalBroadcastManager.getInstance(getApplicationContext())
+                                .sendBroadcast(update);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MainActivity_GetStatus", "Cannot get status: "+error.toString());
+                        timeoutErrorHandler(error);
+                    }
+                });
             }
         });
         fab.setVisibility(View.INVISIBLE);
 
         UserDataService.INSTANCE.getLoginFromPrefs();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(userLoginReceiver,
-                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_USER_LOGGED_IN()));
-        LocalBroadcastManager.getInstance(this).registerReceiver(refreshAppAndDevicesValues,
-                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS()));
     }
 
     @Override
@@ -548,6 +639,14 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(appInvalidDialog,
                 new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_INVAL_APP()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(networkTimeout,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_TIMEOUT()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(userLoginReceiver,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_USER_LOGGED_IN()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(refreshAppAndDevicesValues,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(selectedDeviceUpdate,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS()));
         App.Companion.mainActivityResumed();
         //Update base url when coming from settings
         CloudApi.setBaseUrl(App.prefs.getApiServer(),App.prefs.getApiPort());
@@ -561,10 +660,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(appInvalidDialog);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(networkTimeout);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(appInvalidDialog);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userLoginReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(refreshAppAndDevicesValues);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(selectedDeviceUpdate);
         App.Companion.mainActivityPaused();
     }
-
     void timeoutErrorHandler(VolleyError error){
         if (error instanceof TimeoutError){
             mBadConnectivity.setVisibility(View.VISIBLE);

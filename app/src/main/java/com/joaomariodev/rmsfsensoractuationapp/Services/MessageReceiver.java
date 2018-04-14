@@ -18,6 +18,11 @@ import com.joaomariodev.rmsfsensoractuationapp.Controller.MainActivity;
 import com.joaomariodev.rmsfsensoractuationapp.R;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.ConstantsO;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Objects;
+
 public class MessageReceiver extends FirebaseMessagingService{
     private static final int REQUEST_CODE = 1;
     private static final int NOTIFICATION_ID = 6578;
@@ -45,21 +50,18 @@ public class MessageReceiver extends FirebaseMessagingService{
                         remoteMessage.getData().get("appID"), remoteMessage.getData().get("status"));
                 break;
 
+            case "appOrDeviceUpdated":
+                if(App.Companion.isMainActivityVisible()){
+                    //Send broadcast
+                    Intent refresh = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_APP_AND_DEVS());
+                    LocalBroadcastManager.getInstance(getApplicationContext())
+                            .sendBroadcast(refresh);
+                }
+
             default:
                 Log.d("Push Service", "Receiving not expected message type: " + type);
                 break;
         }
-
-        //Here we can have all sorts of messages:
-        /*
-        type                    notion
-        appInvalidation         Invalidate App
-        refreshData             New Data for devices -> Can lead to hazard notification
-            ...
-         */
-        //So according to a parameter we choose how to act on -> type parameter
-
-
     }
 
     private void invalidateAppWarning(String appID){
@@ -129,5 +131,52 @@ public class MessageReceiver extends FirebaseMessagingService{
     private void updateDeviceData (String deviceID, String appID, String status){
 
         Log.d("Push_updateDeviceData", "Device: " + deviceID + " App: " + appID + " Status: " + status);
+        if(App.Companion.isMainActivityVisible() && Objects.equals(UserDataService.INSTANCE.getSelectedDeviceID(), deviceID) &&
+                Objects.equals(UserDataService.INSTANCE.getSelectedAppID(), appID)){
+
+            Intent update = new Intent(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS());
+
+            try {
+                JSONObject device = new JSONObject(status);
+                JSONObject temp = device.getJSONObject("temp");
+                JSONObject gas = device.getJSONObject("gas");
+                JSONObject alarm = device.getJSONObject("alert");
+                JSONObject water = device.getJSONObject("water");
+
+                update.putExtra("gas_threshold", gas.getString("threshold"));
+                update.putExtra("temp_threshold", temp.getString("threshold"));
+                update.putExtra("water_operational",water.getString("operational"));
+                update.putExtra("alarm_operational",alarm.getString("operational"));
+                update.putExtra("gas_status", gas.getString("status"));
+                update.putExtra("temp_status", temp.getString("status"));
+                update.putExtra("water_status", water.getString("status"));
+                update.putExtra("alarm_status", alarm.getString("status"));
+                update.putExtra("initialized", true);
+
+                LocalBroadcastManager.getInstance(getApplicationContext())
+                        .sendBroadcast(update);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            JSONObject device = new JSONObject(status);
+            JSONObject temp = device.getJSONObject("temp");
+            JSONObject gas = device.getJSONObject("gas");
+
+            Double gs = Double.parseDouble(gas.getString("status"));
+            Double gt = Double.parseDouble(gas.getString("threshold"));
+
+            Double ts = Double.parseDouble(temp.getString("status"));
+            Double tt = Double.parseDouble(temp.getString("threshold"));
+
+            if(gs > gt || ts > tt){
+                //Send notification
+                showHazardNotifications("On " + deviceID + " at " + appID, "Sensor levels are too high");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

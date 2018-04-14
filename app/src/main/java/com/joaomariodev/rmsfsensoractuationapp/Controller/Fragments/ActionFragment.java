@@ -1,9 +1,13 @@
 package com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,13 +23,15 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.joaomariodev.rmsfsensoractuationapp.R;
+import com.joaomariodev.rmsfsensoractuationapp.Services.CloudApi;
+import com.joaomariodev.rmsfsensoractuationapp.Services.UserDataService;
+import com.joaomariodev.rmsfsensoractuationapp.Utilities.ConstantsO;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ActionFragment extends Fragment {
 
-    String TAG = "DEBUG";
+    String TAG = "ActionFragment";
 
     EditText mTempThresh;
     EditText mSmokeThresh;
@@ -35,13 +41,27 @@ public class ActionFragment extends Fragment {
     Switch mAlarmToggle;
     Switch mWaterPumpToggle;
     ProgressBar mProgress;
-
+    BroadcastReceiver updateOnBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String gas = intent.getStringExtra("gas_threshold");
+            String temperature = intent.getStringExtra("temp_threshold");
+            Boolean water = Boolean.parseBoolean(intent.getStringExtra("water_operational"));
+            Boolean alarm = Boolean.parseBoolean(intent.getStringExtra("alarm_operational"));
+            updateAndRenderData(alarm,water,temperature,gas);
+        }
+    };
+    BroadcastReceiver clearOnBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            clearControls();
+            disableControls();
+        }
+    };
     @SuppressWarnings("unused")
     private OnActionFragmentInteractionListener mListener;
 
     public ActionFragment() {
-        handler = new Handler();
-
         Log.d(TAG, "CloudFragment: ");
     }
 
@@ -53,6 +73,12 @@ public class ActionFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
+        //START BROADCAST LISTENER
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(updateOnBroadcast,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS()));
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(clearOnBroadcast,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS()));
     }
 
     @Override
@@ -92,9 +118,9 @@ public class ActionFragment extends Fragment {
             }
         });
 
-        final Response.Listener<String> generalResponseHandler = new Response.Listener<String>() {
+        final Response.Listener<JSONObject> generalResponseHandler = new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(String response) {
+            public void onResponse(JSONObject response) {
                 Log.d("POST general", "Success");
             }
         };
@@ -104,6 +130,10 @@ public class ActionFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(getContext(),"Could not update to cloud",Toast.LENGTH_SHORT).show();
                 Log.d("POST general", error.toString() + " " + error.getMessage());
+                //Send Broadcast on timeout to be received on MainActivity
+                Intent timeout = new Intent(ConstantsO.INSTANCE.getBROADCAST_TIMEOUT());
+                LocalBroadcastManager.getInstance(getContext())
+                        .sendBroadcast(timeout);
             }
         };
 
@@ -111,7 +141,9 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
-               // CloudApi.post("thr/gas", thisDouble, generalResponseHandler, generalErrorHandler);
+                CloudApi.postConfigs(CloudApi.Configs.GAS, UserDataService.INSTANCE.getSelectedAppID(),
+                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(thisDouble),
+                        generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -119,7 +151,9 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
-               // CloudApi.post("thr/temp", thisDouble, generalResponseHandler, generalErrorHandler);
+                CloudApi.postConfigs(CloudApi.Configs.TEMPERATURE, UserDataService.INSTANCE.getSelectedAppID(),
+                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(thisDouble),
+                        generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -132,12 +166,13 @@ public class ActionFragment extends Fragment {
             if(savedInstanceState.getString("smokeHintString")!=null) mSmokeThresh.setHint(savedInstanceState.getString("smokeHintString"));
         }
 
-
         mAlarmToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-               // CloudApi.post("set/alrt", b, generalResponseHandler, generalErrorHandler);
+                CloudApi.postConfigs(CloudApi.Configs.ALARM, UserDataService.INSTANCE.getSelectedAppID(),
+                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(b),
+                        generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -146,7 +181,9 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 boolean b = ((Switch) view).isChecked();
-              //  CloudApi.post("set/wtr", b, generalResponseHandler, generalErrorHandler);
+                CloudApi.postConfigs(CloudApi.Configs.WATERPUMP, UserDataService.INSTANCE.getSelectedAppID(),
+                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(b),
+                        generalResponseHandler, generalErrorHandler);
                 startSpinner();
             }
         });
@@ -157,7 +194,6 @@ public class ActionFragment extends Fragment {
         mWaterPumpToggle.setEnabled(false);
 
         return rootView;
-        //TODO: START BROADCAST LISTENER
     }
 
     @Override
@@ -176,15 +212,22 @@ public class ActionFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-
     }
 
     //Where we pause the background check
     @Override
     public void onStop() {
         Log.d(TAG, "onStop: ");
-        //TODO: STOP BROADCAST LISTENER
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //STOP BROADCAST LISTENER
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(updateOnBroadcast);
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(clearOnBroadcast);
+
     }
 
     @Override
@@ -200,17 +243,33 @@ public class ActionFragment extends Fragment {
         mListener = null;
     }
 
-    void updateAndRenderData(JSONObject data){
-        try {
-            mAlarmToggle.setChecked(data.getJSONObject("alert").getBoolean("operational"));
-            mWaterPumpToggle.setChecked(data.getJSONObject("water").getBoolean("operational"));
-            mTempThresh.setHint(String.valueOf(data.getJSONObject("temp").getDouble("threshold")));
-            mSmokeThresh.setHint(String.valueOf(data.getJSONObject("gas").getDouble("threshold")));
+    void updateAndRenderData(Boolean alarm, Boolean water, String temperature, String gas){
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mAlarmToggle.setChecked(alarm);
+        mWaterPumpToggle.setChecked(water);
+        mTempThresh.setHint(temperature);
+        mSmokeThresh.setHint(gas);
+
+        mAlarmToggle.setEnabled(true);
+        mWaterPumpToggle.setEnabled(true);
+        mTempSendBtn.setEnabled(true);
+        mSmokeSendBtn.setEnabled(true);
+
         stopSpinner();
+    }
+
+    void disableControls(){
+        mAlarmToggle.setEnabled(false);
+        mWaterPumpToggle.setEnabled(false);
+        mTempSendBtn.setEnabled(false);
+        mSmokeSendBtn.setEnabled(false);
+    }
+
+    void clearControls(){
+        mAlarmToggle.setChecked(false);
+        mWaterPumpToggle.setChecked(false);
+        mTempThresh.setHint("");
+        mSmokeThresh.setHint("");
     }
 
     void startSpinner(){

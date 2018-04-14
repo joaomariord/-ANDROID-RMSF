@@ -1,40 +1,56 @@
 package com.joaomariodev.rmsfsensoractuationapp.Controller.Fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.joaomariodev.rmsfsensoractuationapp.R;
+import com.joaomariodev.rmsfsensoractuationapp.Utilities.ConstantsO;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.LineDataSeriazable;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.realtimeChart;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class CloudFragment extends Fragment {
 
-    String TAG = "DEBUG";
+    String TAG = "CloudFragment";
 
     realtimeChart chartTemperature;
     realtimeChart chartSmoke;
     TextView mTextAlarm;
     TextView mTextWaterPump;
+    BroadcastReceiver updateOnBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String gas = intent.getStringExtra("gas_status");
+            String temperature = intent.getStringExtra("temp_status");
+            if(gas.isEmpty()) gas = "-1";
+            if(temperature.isEmpty()) temperature = "-1";
 
-    Handler handler;
+            Boolean water = Boolean.parseBoolean(intent.getStringExtra("water_status"));
+            Boolean alarm = Boolean.parseBoolean(intent.getStringExtra("alarm_status"));
+            Boolean initialized = intent.getBooleanExtra("initialized",false);
+            renderData(alarm,water,temperature,gas, initialized);
+        }
+    };
+    BroadcastReceiver clearOnBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            clearControls();
+        }
+    };
     private OnCloudFragmentInteractionListener mListener;
 
     public CloudFragment() {
-        handler = new Handler();
-
-        Log.d(TAG, "CloudFragment: ");
+       Log.d(TAG, "CloudFragment: ");
     }
 
     public static CloudFragment newInstance() {
@@ -45,6 +61,12 @@ public class CloudFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
+        //START BROADCAST LISTENER
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(updateOnBroadcast,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_REFRESH_FRAGMENTS()));
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(clearOnBroadcast,
+                new IntentFilter(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS()));
     }
 
     @Override
@@ -102,6 +124,15 @@ public class CloudFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //STOP BROADCAST LISTENER
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(updateOnBroadcast);
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(clearOnBroadcast);
+
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("chartTemperatureData", chartTemperature.getData());
@@ -116,34 +147,30 @@ public class CloudFragment extends Fragment {
         mListener = null;
     }
 
-    private boolean renderData(JSONObject data){
-        boolean alertStatus = false;
-        boolean waterStatus = false;
-        boolean returnStatus = true;
-        try {
-            chartTemperature.addEntry(Double.parseDouble(data.getJSONObject("temp").getString("status")));
-            chartSmoke.addEntry(Double.parseDouble(data.getJSONObject("gas").getString("status")));
-            alertStatus = data.getJSONObject("alert").getBoolean("status");
-            waterStatus = data.getJSONObject("water").getBoolean("status");
-        } catch (JSONException e) {
+    private void renderData(Boolean alarm, Boolean water, String temperature, String gas, Boolean initialized){
+        if(initialized) {
+            chartTemperature.addEntry(Double.parseDouble(temperature));
+            chartSmoke.addEntry(Double.parseDouble(gas));
 
-            Toast.makeText(getContext(),"Server data is invalid",Toast.LENGTH_SHORT).show();
-            returnStatus = false;
+            if (alarm) {
+                mTextAlarm.setText("Alarm raised");
+            } else {
+                mTextAlarm.setText("Alarm not raised");
+            }
+
+            if (water) {
+                mTextWaterPump.setText("Water pump is pumping");
+            } else {
+                mTextWaterPump.setText("Water pump not pumping");
+            }
         }
+    }
 
-        if (alertStatus) {
-            mTextAlarm.setText("Alarm raised");
-        } else {
-            mTextAlarm.setText("Alarm not raised");
-        }
-
-        if (waterStatus) {
-            mTextWaterPump.setText("Water pump is pumping");
-        } else {
-            mTextWaterPump.setText("Water pump not pumping");
-        }
-
-        return returnStatus;
+    void clearControls(){
+        chartSmoke.clear();
+        chartTemperature.clear();
+        mTextAlarm.setText("");
+        mTextWaterPump.setText("");
     }
 
     /**
