@@ -25,7 +25,6 @@ import java.util.Objects;
 
 public class MessageReceiver extends FirebaseMessagingService{
     private static final int REQUEST_CODE = 1;
-    private static final int NOTIFICATION_ID = 6578;
 
     public MessageReceiver() {
         super();
@@ -34,7 +33,6 @@ public class MessageReceiver extends FirebaseMessagingService{
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        final String title = remoteMessage.getData().get("title");
 
         Log.d("Push Service", "Received message of type " + remoteMessage.getData().get("type"));
 
@@ -57,7 +55,7 @@ public class MessageReceiver extends FirebaseMessagingService{
                     LocalBroadcastManager.getInstance(getApplicationContext())
                             .sendBroadcast(refresh);
                 }
-
+                break;
             default:
                 Log.d("Push Service", "Receiving not expected message type: " + type);
                 break;
@@ -98,14 +96,18 @@ public class MessageReceiver extends FirebaseMessagingService{
 
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (manager != null) {
-                manager.notify(NOTIFICATION_ID,notification);
+                int uniqueId = 0;
+                for (int index = 0; index < appID.length(); index++){
+                    uniqueId += ((int) appID.charAt(index));
+                }
+                manager.notify(uniqueId,notification);
             }
         }
     }
 
     private void showHazardNotifications(String title, String msg) {
         Intent i = new Intent(this, MainActivity.class);
-
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, REQUEST_CODE,
                 i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -124,7 +126,11 @@ public class MessageReceiver extends FirebaseMessagingService{
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (manager != null) {
-            manager.notify(NOTIFICATION_ID,notification);
+            int uniqueId = 0;
+            for (int index = 0; index < title.length(); index++){
+                uniqueId += ((int) title.charAt(index));
+            }
+            manager.notify(uniqueId,notification);
         }
     }
 

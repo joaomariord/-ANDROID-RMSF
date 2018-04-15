@@ -112,6 +112,18 @@ public class MainActivity extends AppCompatActivity
                             LocalBroadcastManager.getInstance(getApplicationContext())
                                     .sendBroadcast(userDataChange);
                         }
+                        //Clean Apps and devices list
+                        appsAndDevicesAdapter.notifyDataSetChanged();
+                        //Clean selected device identification
+                        mSelectedDeviceWarn.setText("Please select a device");
+                        //Hide device data not initialized
+                        mDeviceDataUpdatedTV.setVisibility(View.INVISIBLE);
+                        //Clean fragments
+                        Intent clear = new Intent(ConstantsO.INSTANCE.getBROADCAST_CLEAR_FRAGMENTS());
+                        LocalBroadcastManager.getInstance(getApplicationContext())
+                                .sendBroadcast(clear);
+                        //Hide refresh fab
+                        fab.setVisibility(View.INVISIBLE);
                         return null;
                     }
                 });
@@ -368,7 +380,10 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver selectedDeviceUpdate = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Boolean initialized = intent.getBooleanExtra("initialized", false);
+            if (initialized){
                 mDeviceDataUpdatedTV.setVisibility(View.INVISIBLE);
+            }
         }
     };
 
@@ -396,7 +411,7 @@ public class MainActivity extends AppCompatActivity
 
         mDeviceDataUpdatedTV = findViewById(R.id.deviceDataUpdatedTV);
 
-        DrawerLayout drawer_layout = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer_layout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer_layout.addDrawerListener(toggle);
@@ -521,6 +536,7 @@ public class MainActivity extends AppCompatActivity
                 if(childPosition == UserDataService.INSTANCE.getSelectedDeviceIter() &&
                         groupPosition == UserDataService.INSTANCE.getSelectedAppIter()){
                     //Same device -> Do nothing
+                    drawer_layout.closeDrawers();
                     return true;
                 }
                 else{
@@ -574,6 +590,8 @@ public class MainActivity extends AppCompatActivity
                         timeoutErrorHandler(error);
                     }
                 });
+
+                drawer_layout.closeDrawers();
                 return true;
             }
         });

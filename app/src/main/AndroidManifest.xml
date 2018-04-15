@@ -20,7 +20,8 @@
         <activity
             android:name=".Controller.MainActivity"
             android:label="@string/app_name_simple"
-            android:theme="@style/AppThemeLight" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppThemeLight"/>
         <activity
             android:name=".Controller.SplashActivity"
             android:theme="@style/SplashTheme">
