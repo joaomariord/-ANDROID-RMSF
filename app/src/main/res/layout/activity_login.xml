@@ -18,7 +18,8 @@
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
     <EditText
         android:id="@+id/loginPasswordTxt"
@@ -32,7 +33,8 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/loginLoginBtn"
@@ -47,7 +49,8 @@
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginPasswordTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/loginPasswordTxt"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView"
@@ -59,7 +62,8 @@
         android:text="Don't have an account?"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginLoginBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/loginLoginBtn"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/loginCreateUserBtn"
@@ -74,7 +78,8 @@
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:ignore="HardcodedText" />
 
     <ProgressBar
         android:id="@+id/loginSpinner"

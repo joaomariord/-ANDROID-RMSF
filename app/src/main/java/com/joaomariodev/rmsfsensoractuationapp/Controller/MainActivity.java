@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main); //Set base view to this layout
 
         mBadConnectivity = findViewById(R.id.badConnectivity); //Bad connectivity image
-        mSelectedDeviceWarn = findViewById(R.id.DeviceSelectedTV);
+        mSelectedDeviceWarn = findViewById(R.id.deviceSelectedTV);
 
         Toolbar toolbar = findViewById(R.id.toolbar); //Find toolbar and set it's support
         setSupportActionBar(toolbar);

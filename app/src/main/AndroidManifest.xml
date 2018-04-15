@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.joaomariodev.rmsfsensoractuationapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,19 +13,23 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppThemeLight">
+        android:theme="@style/AppThemeLight"
+        tools:ignore="InnerclassSeparator">
         <activity
             android:name=".Controller.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            tools:ignore="InnerclassSeparator" />
         <activity
             android:name=".Controller.MainActivity"
             android:label="@string/app_name_simple"
             android:launchMode="singleTask"
-            android:theme="@style/AppThemeLight"/>
+            android:theme="@style/AppThemeLight"
+            tools:ignore="InnerclassSeparator" />
         <activity
             android:name=".Controller.SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            tools:ignore="InnerclassSeparator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,18 +37,24 @@
             </intent-filter>
         </activity>
         <activity android:name=".Controller.LoginActivity"
-            android:theme="@style/AppThemeLight"/>
+            android:theme="@style/AppThemeLight"
+            tools:ignore="InnerclassSeparator" />
         <activity android:name=".Controller.CreateUserActivity"
-            android:theme="@style/AppThemeLight"/>
+            android:theme="@style/AppThemeLight"
+            tools:ignore="InnerclassSeparator" />
 
 
-        <service android:name=".Services.MessageReceiver">
+        <service
+            android:name=".Services.MessageReceiver"
+            tools:ignore="InnerclassSeparator">
             <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".Services.InstanceIdService">
+        <service
+            android:name=".Services.InstanceIdService"
+            tools:ignore="InnerclassSeparator">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

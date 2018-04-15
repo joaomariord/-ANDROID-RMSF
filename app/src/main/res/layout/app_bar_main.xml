@@ -24,7 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="25dp"
             app:tabSelectedTextColor="@android:color/darker_gray"
-            app:tabTextColor="@android:color/darker_gray">
+            app:tabTextColor="@android:color/darker_gray"
+            tools:ignore="InconsistentLayout">
 
         </android.support.design.widget.TabLayout>
 
@@ -60,7 +61,7 @@
         tools:visibility="visible" />
 
     <TextView
-        android:id="@+id/DeviceSelectedTV"
+        android:id="@+id/deviceSelectedTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -74,7 +75,8 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/black"
         android:textSize="14sp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:ignore="HardcodedText,InconsistentLayout" />
 
     <TextView
         android:id="@+id/deviceDataUpdatedTV"
@@ -92,6 +94,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         android:visibility="invisible"
+        tools:ignore="HardcodedText"
         tools:visibility="visible" />
 
 </android.support.design.widget.CoordinatorLayout>

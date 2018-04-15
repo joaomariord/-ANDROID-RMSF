@@ -1,5 +1,6 @@
 package com.joaomariodev.rmsfsensoractuationapp.Adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +28,7 @@ class AppsAndDevicesAdapter(val context: Context) : BaseExpandableListAdapter() 
         return UserDataService.appsList.get(p0).devicesList
     }
 
+    @SuppressLint("InflateParams")
     override fun getGroupView(position: Int, expanded: Boolean, convertView: View?, parent: ViewGroup?): View {
 
         val categoryView: View
@@ -39,8 +41,7 @@ class AppsAndDevicesAdapter(val context: Context) : BaseExpandableListAdapter() 
             holder.name = categoryView.findViewById(R.id.lblListHeader)
 
             categoryView.tag = holder
-        }
-        else{
+        } else{
             holder = convertView.tag as ViewHolderGroup
             categoryView = convertView
         }
@@ -64,6 +65,7 @@ class AppsAndDevicesAdapter(val context: Context) : BaseExpandableListAdapter() 
     }
 
 
+    @SuppressLint("InflateParams")
     override fun getChildView(groupPosition: Int, childPosition: Int, LastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
         val categoryView: View
         val holder : ViewHolderChild
@@ -75,8 +77,7 @@ class AppsAndDevicesAdapter(val context: Context) : BaseExpandableListAdapter() 
             holder.name = categoryView.findViewById(R.id.lblListItem)
 
             categoryView.tag = holder
-        }
-        else{
+        } else{
             holder = convertView.tag as ViewHolderChild
             categoryView = convertView
         }
