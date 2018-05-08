@@ -141,20 +141,26 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mSmokeThresh.getText().toString());
-                CloudApi.postConfigs(CloudApi.Configs.GAS, UserDataService.INSTANCE.getSelectedAppID(),
-                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(thisDouble),
-                        generalResponseHandler, generalErrorHandler);
-                startSpinner();
+                if (thisDouble <= 100 && thisDouble >= 0) {
+                    CloudApi.postConfigs(CloudApi.Configs.GAS, UserDataService.INSTANCE.getSelectedAppID(),
+                            UserDataService.INSTANCE.getSelectedDeviceID(), String.valueOf(thisDouble),
+                            generalResponseHandler, generalErrorHandler);
+                    startSpinner();
+                } else
+                    Toast.makeText(getContext(), "Please input a value between 0 and 100", Toast.LENGTH_SHORT).show();
             }
         });
         mTempSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
-                CloudApi.postConfigs(CloudApi.Configs.TEMPERATURE, UserDataService.INSTANCE.getSelectedAppID(),
-                        UserDataService.INSTANCE.getSelectedDeviceID(),String.valueOf(thisDouble),
-                        generalResponseHandler, generalErrorHandler);
-                startSpinner();
+                if (thisDouble <= 100 && thisDouble >= 0) {
+                    CloudApi.postConfigs(CloudApi.Configs.TEMPERATURE, UserDataService.INSTANCE.getSelectedAppID(),
+                            UserDataService.INSTANCE.getSelectedDeviceID(), String.valueOf(thisDouble),
+                            generalResponseHandler, generalErrorHandler);
+                    startSpinner();
+                } else
+                    Toast.makeText(getContext(), "Please input a value between 0 and 100", Toast.LENGTH_SHORT).show();
             }
         });
 
