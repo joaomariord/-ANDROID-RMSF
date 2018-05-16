@@ -41,6 +41,8 @@ public class ActionFragment extends Fragment {
     Switch mAlarmToggle;
     Switch mWaterPumpToggle;
     ProgressBar mProgress;
+
+    Boolean enabledControls = false;
     BroadcastReceiver updateOnBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -154,13 +156,13 @@ public class ActionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Double thisDouble = Double.parseDouble(mTempThresh.getText().toString());
-                if (thisDouble <= 100 && thisDouble >= 0) {
+                if (thisDouble <= 200 && thisDouble >= 0) {
                     CloudApi.postConfigs(CloudApi.Configs.TEMPERATURE, UserDataService.INSTANCE.getSelectedAppID(),
                             UserDataService.INSTANCE.getSelectedDeviceID(), String.valueOf(thisDouble),
                             generalResponseHandler, generalErrorHandler);
                     startSpinner();
                 } else
-                    Toast.makeText(getContext(), "Please input a value between 0 and 100", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Please input a value between 0 and 200", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -194,10 +196,12 @@ public class ActionFragment extends Fragment {
             }
         });
 
-        mSmokeSendBtn.setEnabled(false);
-        mTempSendBtn.setEnabled(false);
-        mAlarmToggle.setEnabled(false);
-        mWaterPumpToggle.setEnabled(false);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getBoolean("enabledControls")) enableControls();
+            else disableControls();
+
+            mProgress.setVisibility(savedInstanceState.getInt("enabledSpinner"));
+        } else disableControls();
 
         return rootView;
     }
@@ -241,6 +245,8 @@ public class ActionFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putCharSequence("tempHintString", mTempThresh.getHint());
         outState.putCharSequence("smokeHintString", mSmokeThresh.getHint());
+        outState.putBoolean("enabledControls", enabledControls);
+        outState.putInt("enabledSpinner", mProgress.getVisibility());
     }
 
     @Override
@@ -256,11 +262,7 @@ public class ActionFragment extends Fragment {
         mTempThresh.setHint(temperature);
         mSmokeThresh.setHint(gas);
 
-        mAlarmToggle.setEnabled(true);
-        mWaterPumpToggle.setEnabled(true);
-        mTempSendBtn.setEnabled(true);
-        mSmokeSendBtn.setEnabled(true);
-
+        enableControls();
         stopSpinner();
     }
 
@@ -269,6 +271,15 @@ public class ActionFragment extends Fragment {
         mWaterPumpToggle.setEnabled(false);
         mTempSendBtn.setEnabled(false);
         mSmokeSendBtn.setEnabled(false);
+        enabledControls = false;
+    }
+
+    void enableControls() {
+        mAlarmToggle.setEnabled(true);
+        mWaterPumpToggle.setEnabled(true);
+        mTempSendBtn.setEnabled(true);
+        mSmokeSendBtn.setEnabled(true);
+        enabledControls = true;
     }
 
     void clearControls(){

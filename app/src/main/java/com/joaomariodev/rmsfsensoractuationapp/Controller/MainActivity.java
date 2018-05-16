@@ -397,7 +397,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
 
@@ -568,6 +568,7 @@ public class MainActivity extends AppCompatActivity
                         update.putExtra("temp_status", selectedDevice.getTemperature_status());
                         update.putExtra("water_status", selectedDevice.getWater_status());
                         update.putExtra("alarm_status", selectedDevice.getAlarm_status());
+                        update.putExtra("last_seen", selectedDevice.getLast_seen());
                         update.putExtra("initialized", selectedDevice.getData_initialized());
 
                         LocalBroadcastManager.getInstance(getApplicationContext())
@@ -632,6 +633,7 @@ public class MainActivity extends AppCompatActivity
                         update.putExtra("temp_status", selectedDevice.getTemperature_status());
                         update.putExtra("water_status", selectedDevice.getWater_status());
                         update.putExtra("alarm_status", selectedDevice.getAlarm_status());
+                        update.putExtra("last_seen", selectedDevice.getLast_seen());
                         update.putExtra("initialized", selectedDevice.getData_initialized());
 
                         LocalBroadcastManager.getInstance(getApplicationContext())
@@ -649,6 +651,14 @@ public class MainActivity extends AppCompatActivity
         fab.setVisibility(View.INVISIBLE);
 
         UserDataService.INSTANCE.getLoginFromPrefs();
+
+        if (savedInstanceState != null) { //Renew Layout State on Orientation Change
+            mSelectedDeviceWarn.setText(UserDataService.INSTANCE.getSelectedDeviceID() +
+                    " on " + UserDataService.INSTANCE.getSelectedAppID());
+
+            fab.setVisibility(View.VISIBLE);
+
+        }
 
     }
 
@@ -685,6 +695,16 @@ public class MainActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).unregisterReceiver(selectedDeviceUpdate);
         App.Companion.mainActivityPaused();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (UserDataService.INSTANCE.isDeviceSelected()) {
+            outState.putInt("selectedDevice", UserDataService.INSTANCE.getSelectedDeviceIter());
+            outState.putInt("selectedApp", UserDataService.INSTANCE.getSelectedAppIter());
+        }
+    }
+
     void timeoutErrorHandler(VolleyError error){
         if (error instanceof TimeoutError){
             mBadConnectivity.setVisibility(View.VISIBLE);

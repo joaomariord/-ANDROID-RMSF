@@ -157,6 +157,7 @@ public class MessageReceiver extends FirebaseMessagingService{
                 update.putExtra("temp_status", temp.getString("status"));
                 update.putExtra("water_status", water.getString("status"));
                 update.putExtra("alarm_status", alarm.getString("status"));
+                update.putExtra("last_seen", device.getString("lastseen"));
                 update.putExtra("initialized", true);
 
                 LocalBroadcastManager.getInstance(getApplicationContext())

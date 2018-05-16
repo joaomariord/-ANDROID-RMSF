@@ -12,15 +12,12 @@
         android:id="@+id/temp"
         android:layout_width="@dimen/icon_size"
         android:layout_height="49dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
         android:contentDescription="@string/temperature"
         android:translationX="-4dp"
         app:layout_constraintBottom_toTopOf="@+id/smoke"
-        app:layout_constraintEnd_toEndOf="@+id/smoke"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/smoke"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="spread_inside"
         app:srcCompat="@mipmap/temp_pic" />
 
     <com.github.mikephil.charting.charts.LineChart
@@ -39,10 +36,9 @@
         android:layout_height="@dimen/icon_size"
         android:contentDescription="@string/gas_level"
         android:translationX="-4dp"
-        app:layout_constraintBottom_toTopOf="@+id/water"
-        app:layout_constraintEnd_toEndOf="@+id/water"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/water"
+        app:layout_constraintBottom_toTopOf="@+id/last_seen"
+        app:layout_constraintEnd_toEndOf="@+id/temp"
+        app:layout_constraintStart_toStartOf="@+id/temp"
         app:layout_constraintTop_toBottomOf="@+id/temp"
         app:srcCompat="@mipmap/smoke_pic" />
 
@@ -54,7 +50,34 @@
         app:layout_constraintBottom_toBottomOf="@+id/smoke"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/smoke"
-        app:layout_constraintTop_toTopOf="@+id/smoke" />
+        app:layout_constraintTop_toTopOf="@+id/smoke">
+
+    </com.github.mikephil.charting.charts.LineChart>
+
+    <ImageView
+        android:id="@+id/last_seen"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/lastseen_indicator"
+        app:layout_constraintBottom_toTopOf="@+id/water"
+        app:layout_constraintEnd_toEndOf="@+id/smoke"
+        app:layout_constraintStart_toStartOf="@+id/smoke"
+        app:layout_constraintTop_toBottomOf="@+id/smoke"
+        app:srcCompat="@android:drawable/radiobutton_off_background" />
+
+    <TextView
+        android:id="@+id/last_seen_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/roboto_slab"
+        android:textColor="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="@+id/last_seen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/last_seen"
+        app:layout_constraintTop_toTopOf="@+id/last_seen"
+        tools:text="Test Text Filling This Space" />
 
     <ImageView
         android:id="@+id/water"
@@ -62,10 +85,9 @@
         android:layout_height="@dimen/icon_size"
         android:contentDescription="@string/water_pump"
         app:layout_constraintBottom_toTopOf="@+id/alarm"
-        app:layout_constraintEnd_toEndOf="@+id/alarm"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/alarm"
-        app:layout_constraintTop_toBottomOf="@+id/smoke"
+        app:layout_constraintEnd_toEndOf="@+id/last_seen"
+        app:layout_constraintStart_toStartOf="@+id/last_seen"
+        app:layout_constraintTop_toBottomOf="@+id/last_seen"
         app:srcCompat="@drawable/waterpump" />
 
     <TextView
@@ -86,12 +108,10 @@
         android:id="@+id/alarm"
         android:layout_width="@dimen/icon_size"
         android:layout_height="@dimen/icon_size"
-        android:layout_marginBottom="8dp"
         android:contentDescription="@string/alarm"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/water"
+        app:layout_constraintStart_toStartOf="@+id/water"
         app:layout_constraintTop_toBottomOf="@+id/water"
         app:srcCompat="@drawable/alarm" />
 

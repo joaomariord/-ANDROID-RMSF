@@ -87,5 +87,6 @@
 
     <string name="channel_name">RMSFChannel</string>
     <string name="channel_description">RMSF App warnings channel</string>
+    <string name="lastseen_indicator">LastSeen Indicator</string>
 
 </resources>

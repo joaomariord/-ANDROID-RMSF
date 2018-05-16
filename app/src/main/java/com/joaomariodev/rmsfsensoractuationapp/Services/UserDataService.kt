@@ -47,6 +47,7 @@ object UserDataService {
     fun fillAppsList(webList: JSONObject) {
         appsList.clear()
         try {
+            Log.d("WEBRESPONSE", webList.toString())
             val applications = webList.getJSONArray("applications")
             for (i in 0 until applications.length()) {
                 val app = applications[i] as JSONObject
@@ -81,6 +82,7 @@ object UserDataService {
                         newApp.devicesList[j].temperature_threshold = temp.getString("threshold")
                         newApp.devicesList[j].gas_status = gas.getString("status")
                         newApp.devicesList[j].gas_threshold = gas.getString("threshold")
+                        newApp.devicesList[j].last_seen = deviceStatus.getString("lastseen")
                         newApp.devicesList[j].data_initialized = true
 
                     } catch (e: JSONException) {
