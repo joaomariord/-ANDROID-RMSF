@@ -257,6 +257,8 @@ public class CloudFragment extends Fragment {
         chartTemperature.clear();
         mTextAlarm.setText("");
         mTextWaterPump.setText("");
+        mLastSeen.clearColorFilter();
+        mTextLastSeen.setText("");
     }
 
     /**

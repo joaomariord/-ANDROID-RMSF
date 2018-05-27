@@ -280,6 +280,7 @@ public class ActionFragment extends Fragment {
         mTempSendBtn.setEnabled(true);
         mSmokeSendBtn.setEnabled(true);
         enabledControls = true;
+        mProgress.setVisibility(View.INVISIBLE);
     }
 
     void clearControls(){

@@ -18,5 +18,6 @@ Instructions:
 
 **Note 2**: Use the Url(s) without the last '/' &rightarrow; eg. Use http://10.0.2.2 instead of http://10.0.2.2/
  
-    
+**Note 3**: Our web api goes to sleep if it has not been used by some time, so if the application says that the api is not reachable, retry one or more times, usually becomes reachable in 30 seconds after first web request
+
     

@@ -27,6 +27,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         CloudApi.setBaseUrl(App.prefs.getApiServer(), App.prefs.getApiPort());
         CloudApi.testApi(new Response.Listener<JSONObject>() {
             @Override
@@ -44,18 +45,23 @@ public class SplashActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.NoAPIDialogTheme);
                 builder.setTitle("No connectivity")
                         .setMessage("API is not reachable, try again later")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                finish();
+                                recreate();
                             }
                         }).setNeutralButton("Settings", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent = new Intent(mContext, SettingsActivity.class);
-                                startActivity(intent);
-                            }
-                        }).show();
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(mContext, SettingsActivity.class);
+                        startActivity(intent);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                }).show();
             }
         });
     }
