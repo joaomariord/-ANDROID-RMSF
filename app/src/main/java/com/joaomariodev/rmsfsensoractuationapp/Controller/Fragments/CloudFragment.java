@@ -21,6 +21,7 @@ import com.joaomariodev.rmsfsensoractuationapp.Utilities.ConstantsO;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.LineDataSeriazable;
 import com.joaomariodev.rmsfsensoractuationapp.Utilities.realtimeChart;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class CloudFragment extends Fragment {
@@ -198,56 +199,63 @@ public class CloudFragment extends Fragment {
                 //If time is less than 30 min we put color green
                 //If time is between 2h and 30min we put color yellow
                 //If time is more than 2h we put color red
+//                Calendar timestamp = Calendar.getInstance();
+//                timestamp.setTimeInMillis(lastSeen);
+//                Calendar now = Calendar.getInstance();
+//                Long time_diff = now.getTimeInMillis() - timestamp.getTimeInMillis();
+//                Long seconds = time_diff / 1000;
+//                Long minutes = time_diff / 1000 / 60;
+//                Long hours = time_diff / 1000 / 60 / 60;
+//                Long days = time_diff / 1000 / 60 / 60 / 24;
+//                Long months = time_diff / 1000 / 60 / 60 / 24 / 30; //I can bear this small error
+//
+//                days = days - months * 30;
+//                hours = hours - days * 24 - months * 30 * 24;
+//                minutes = minutes - hours * 60 - days * 60 * 24 - months * 30 * 60 * 24;
+//                seconds = seconds - minutes * 60 - hours * 60 * 60 - days * 60 * 60 * 24 - months * 30 * 60 * 60 * 24;
+//
+//                Log.d(TAG, "TimeStamps Comp: months:" + months + "  days:" + days + "  hours:" + hours + "  minutes:" + minutes + "  seconds:" + seconds);
+//
+//                String wordNumber;
+//                if (months != 0) { //Display in months
+//                    wordNumber = months == 1 ? "month" : "months";
+//                    mTextLastSeen.setText("Device last seen " + months + " " + wordNumber + " ago");
+//                } else if (days != 0) {
+//                    wordNumber = days == 1 ? "day" : "days";
+//                    mTextLastSeen.setText("Device last seen " + days + " " + wordNumber + " ago");
+//                } else if (hours != 0) {
+//                    wordNumber = hours == 1 ? "hour" : "hours";
+//                    mTextLastSeen.setText("Device last seen " + hours + " " + wordNumber + " ago");
+//                } else if (minutes != 0) {
+//                    wordNumber = minutes == 1 ? "minute" : "minutes";
+//                    mTextLastSeen.setText("Device last seen " + minutes + " " + wordNumber + " ago");
+//                } else if (seconds != 0) {
+//                    wordNumber = seconds == 1 ? "second" : "seconds";
+//                    mTextLastSeen.setText("Device last seen " + seconds + " " + wordNumber + " ago");
+//                } else { //No match invalid date
+//                    mTextLastSeen.setText("Device never seen online");
+//                }
+
+//                if (time_diff <= 1000 * 60 * 30) { //Less than 30m
+//                    mLastSeen.setColorFilter(Color.GREEN);
+//                    mLastSeen.setTag(Color.GREEN);
+//                } else if (time_diff > 1000 * 60 * 30 && time_diff <= 1000 * 60 * 60 * 2) { //Between 2h and 30m
+//                    mLastSeen.setColorFilter(Color.YELLOW);
+//                    mLastSeen.setTag(Color.YELLOW);
+//                } else if (time_diff > 1000 * 60 * 60 * 2) { //More than 2h
+//                    mLastSeen.setColorFilter(Color.RED);
+//                    mLastSeen.setTag(Color.RED);
+//                } else { //Info is not valid
+//                    mLastSeen.setColorFilter(Color.TRANSPARENT);
+//                    mLastSeen.setTag(Color.TRANSPARENT);
+//                }
+                SimpleDateFormat format1 = new SimpleDateFormat("HH:mm 'of' MM-dd", getResources().getConfiguration().locale);
                 Calendar timestamp = Calendar.getInstance();
                 timestamp.setTimeInMillis(lastSeen);
-                Calendar now = Calendar.getInstance();
-                Long time_diff = now.getTimeInMillis() - timestamp.getTimeInMillis();
-                Long seconds = time_diff / 1000;
-                Long minutes = time_diff / 1000 / 60;
-                Long hours = time_diff / 1000 / 60 / 60;
-                Long days = time_diff / 1000 / 60 / 60 / 24;
-                Long months = time_diff / 1000 / 60 / 60 / 24 / 30; //I can bear this small error
 
-                days = days - months * 30;
-                hours = hours - days * 24 - months * 30 * 24;
-                minutes = minutes - hours * 60 - days * 60 * 24 - months * 30 * 60 * 24;
-                seconds = seconds - minutes * 60 - hours * 60 * 60 - days * 60 * 60 * 24 - months * 30 * 60 * 60 * 24;
+                String formatted = format1.format(timestamp.getTime());
+                mTextLastSeen.setText("Device last seen on " + formatted);
 
-                Log.d(TAG, "TimeStamps Comp: months:" + months + "  days:" + days + "  hours:" + hours + "  minutes:" + minutes + "  seconds:" + seconds);
-
-                String wordNumber;
-                if (months != 0) { //Display in months
-                    wordNumber = months == 1 ? "month" : "months";
-                    mTextLastSeen.setText("Device last seen " + months + " " + wordNumber + " ago");
-                } else if (days != 0) {
-                    wordNumber = days == 1 ? "day" : "days";
-                    mTextLastSeen.setText("Device last seen " + days + " " + wordNumber + " ago");
-                } else if (hours != 0) {
-                    wordNumber = hours == 1 ? "hour" : "hours";
-                    mTextLastSeen.setText("Device last seen " + hours + " " + wordNumber + " ago");
-                } else if (minutes != 0) {
-                    wordNumber = minutes == 1 ? "minute" : "minutes";
-                    mTextLastSeen.setText("Device last seen " + minutes + " " + wordNumber + " ago");
-                } else if (seconds != 0) {
-                    wordNumber = seconds == 1 ? "second" : "seconds";
-                    mTextLastSeen.setText("Device last seen " + seconds + " " + wordNumber + " ago");
-                } else { //No match invalid date
-                    mTextLastSeen.setText("Device never seen online");
-                }
-
-                if (time_diff <= 1000 * 60 * 30) { //Less than 30m
-                    mLastSeen.setColorFilter(Color.GREEN);
-                    mLastSeen.setTag(Color.GREEN);
-                } else if (time_diff > 1000 * 60 * 30 && time_diff <= 1000 * 60 * 60 * 2) { //Between 2h and 30m
-                    mLastSeen.setColorFilter(Color.YELLOW);
-                    mLastSeen.setTag(Color.YELLOW);
-                } else if (time_diff > 1000 * 60 * 60 * 2) { //More than 2h
-                    mLastSeen.setColorFilter(Color.RED);
-                    mLastSeen.setTag(Color.RED);
-                } else { //Info is not valid
-                    mLastSeen.setColorFilter(Color.TRANSPARENT);
-                    mLastSeen.setTag(Color.TRANSPARENT);
-                }
             }
         }
     }
